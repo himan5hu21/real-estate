@@ -18,6 +18,7 @@ import AddProperty from "./pages/AddProperties.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import MyProperty from "./pages/MyProperty.jsx";
 import EditProperty from "./components/EditProperty.jsx";
+import PropertyDetails from "./pages/PropertyDetails.jsx";
 
 const router = createBrowserRouter(
   [
@@ -38,6 +39,10 @@ const router = createBrowserRouter(
         {
           path: "/properties",
           element: <Properties />,
+        },
+        {
+          path: "/property/:id",
+          element: <PropertyDetails />,
         },
         {
           path: "/addProperty",

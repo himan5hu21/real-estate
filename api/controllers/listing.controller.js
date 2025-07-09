@@ -1,4 +1,5 @@
 import Listing from "../models/listing.model.js";
+import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createListing = async (req, res, next) => {
@@ -170,6 +171,26 @@ export const getSingleListing = async (req, res, next) => {
     });
   } catch (err) {
     console.error("Error fetching listing:", err.message);
+    next(err);
+  }
+};
+
+export const getOwnerDetail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const owner = await User.findById(id).select("-password");
+
+    if (!owner) {
+      return next(errorHandler(404, "Owner not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      owner,
+    });
+  } catch (err) {
+    console.error("Error fetching owner details:", err.message);
     next(err);
   }
 };

@@ -1,15 +1,16 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 // import { Link } from "react-router-dom";
 
 const PropertyCard = ({ property }) => {
-  const { imageUrls, name, bedrooms, bathrooms, address, price, type } =
+  const { _id, imageUrls, name, bedrooms, bathrooms, address, price, type } =
     property;
 
   const imageUrl = imageUrls[0];
 
   return (
-    <a
-      href="#"
+    <Link
+      to={`/property/${_id}`}
       className="block bg-white rounded-lg shadow-md shadow-indigo-100 w-64"
     >
       <div className="aspect-w-16 aspect-h-9">
@@ -98,7 +99,7 @@ const PropertyCard = ({ property }) => {
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 };
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import PropertyCard from "../components/PropertyCard";
 import { useSelector } from "react-redux";
 import { FaRegEdit } from "react-icons/fa";
-import { MdDeleteOutline } from "react-icons/md";
+import { BiTrash } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
 function MyProperty() {
@@ -66,7 +66,7 @@ function MyProperty() {
                 className="rounded-full bg-slate-100 p-2"
                 onClick={() => handleDelete(property._id)}
               >
-                <MdDeleteOutline />
+                <BiTrash className="text-red-600" />
               </button>
             </div>
           </div>
