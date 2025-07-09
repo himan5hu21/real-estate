@@ -17,12 +17,13 @@ import { app } from "../firebase/firebaseConfig";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import "../assets/css/pages.css";
 
 const AddProperty = () => {
   const {
     register,
     handleSubmit,
-    // watch,
+    watch,
     formState: { errors },
   } = useForm();
 
@@ -35,7 +36,6 @@ const AddProperty = () => {
   const [type, setType] = useState("");
   const [photos, setPhotos] = useState([]);
   const [amenities, setAmenities] = useState([]);
-  const [selectedOption, setSelectedOption] = useState("");
   const [error, setError] = useState("");
 
   const [categoryError, setCategoryError] = useState("");
@@ -64,6 +64,8 @@ const AddProperty = () => {
   };
 
   const radios = ["buy", "rent"];
+
+  const selectedRadioOptions = watch("propertyType");
 
   useEffect(() => {
     return () => {
@@ -181,7 +183,7 @@ const AddProperty = () => {
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const updatedFormData = {
-      creator: userId,
+      userRef: userId,
       name: data.name,
       description: data.description,
       address: {
@@ -285,92 +287,94 @@ const AddProperty = () => {
           )}
 
           {/* Container Types & Locations */}
-          <div className="flex-col flex xl:flex-row gap-x-16 mt-10">
-            <div className="flex-1">
-              {/* Types of Places */}
-              <h4 className="text-lg font-medium px-2 pb-5">
-                What is the type of your place?
-                <span className="text-red-500">*</span>
-              </h4>
-              <div className="flex flex-col gap-y-3">
-                {types.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`ring-1 ${
-                      type === item.name ? "ring-sky-600" : "ring-slate-900/5"
-                    } flex items-center justify-between max-w-[777px] rounded-xl px-4 py-1 `}
-                    onClick={() => setType(item.name)}
-                  >
-                    <div>
-                      <h5 className="text-base font-semibold">{item.name}</h5>
-                      <p className="text-sm text-gray-600">
-                        {item.description}
-                      </p>
-                    </div>
+          <div className="px-2 flex flex-col lg:flex-row lg:justify-between lg:gap-10">
+            <div className="flex flex-1 flex-col xl:flex-row gap-x-16 mt-10">
+              <div className="flex-1">
+                {/* Types of Places */}
+                <h4 className="text-lg font-medium px-2 pb-5">
+                  What is the type of your place?
+                  <span className="text-red-500">*</span>
+                </h4>
+                <div className="flex flex-col gap-y-3">
+                  {types.map((item) => (
+                    <div
+                      key={item.name}
+                      className={`ring-1 ${
+                        type === item.name ? "ring-sky-600" : "ring-slate-900/5"
+                      } flex items-center justify-between max-w-[777px] rounded-xl px-4 py-1 `}
+                      onClick={() => setType(item.name)}
+                    >
+                      <div>
+                        <h5 className="text-base font-semibold">{item.name}</h5>
+                        <p className="text-sm text-gray-600">
+                          {item.description}
+                        </p>
+                      </div>
 
-                    <div className="text-2xl">{item.icon}</div>
+                      <div className="text-2xl">{item.icon}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Error Message */}
+                {typePlaceError && (
+                  <p className="text-red-500 text-sm p-2">{typePlaceError}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Place Location */}
+            <div className="flex-1 my-5 lg:mt-10">
+              <h4 className="text-lg font-medium px-2 py-2">
+                What&apos;s the address of your place?
+              </h4>
+              <div className="px-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {addressFields.map((field) => (
+                  <div key={field.name}>
+                    <label className="block text-gray-700 font-medium pb-1">
+                      {field.label}:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={field.placeholder}
+                      {...register(field.name, {
+                        required: `${field.label} is required`,
+                      })}
+                      className={`outline-none border-none ring-1 mb-2 p-2 ${
+                        errors[field.name] ? "ring-red-600" : "ring-gray-300"
+                      } rounded-md shadow-sm focus:ring-sky-600`}
+                    />
+                    {errors[field.name] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[field.name]?.message}
+                      </p>
+                    )}
                   </div>
                 ))}
-              </div>
-              {/* Error Message */}
-              {typePlaceError && (
-                <p className="text-red-500 text-sm p-2">{typePlaceError}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Place Location */}
-          <div className="flex-1 my-5">
-            <h4 className="text-lg font-medium px-2 py-2">
-              What&apos;s the address of your place?
-            </h4>
-            <div className="px-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {addressFields.map((field) => (
-                <div key={field.name}>
+                <div>
                   <label className="block text-gray-700 font-medium pb-1">
-                    {field.label}:<span className="text-red-500">*</span>
+                    Postal Code:<span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
-                    placeholder={field.placeholder}
-                    {...register(field.name, {
-                      required: `${field.label} is required`,
+                    type="number"
+                    placeholder="Enter your postal code (e.g., 380021)"
+                    {...register("postalCode", {
+                      required: "Postal code is required",
+                      pattern: {
+                        value: /^[0-9]{6}$/,
+                        message: "Please enter a valid 6-digit postal code",
+                      },
                     })}
                     className={`outline-none border-none ring-1 mb-2 p-2 ${
-                      errors[field.name] ? "ring-red-600" : "ring-gray-300"
+                      errors.postalCode ? "ring-red-600" : "ring-gray-300"
                     } rounded-md shadow-sm focus:ring-sky-600`}
                   />
-                  {errors[field.name] && (
+                  {errors.postalCode && (
                     <p className="text-red-500 text-sm">
-                      {errors[field.name]?.message}
+                      {errors.postalCode.message}
                     </p>
                   )}
                 </div>
-              ))}
-
-              <div>
-                <label className="block text-gray-700 font-medium pb-1">
-                  Postal Code:<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter your postal code (e.g., 380021)"
-                  {...register("postalCode", {
-                    required: "Postal code is required",
-                    pattern: {
-                      value: /^[0-9]{6}$/,
-                      message: "Please enter a valid 6-digit postal code",
-                    },
-                  })}
-                  className={`outline-none border-none ring-1 mb-2 p-2 ${
-                    errors.postalCode ? "ring-red-600" : "ring-gray-300"
-                  } rounded-md shadow-sm focus:ring-sky-600`}
-                />
-                {errors.postalCode && (
-                  <p className="text-red-500 text-sm">
-                    {errors.postalCode.message}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -526,7 +530,7 @@ const AddProperty = () => {
                 <input
                   type="text"
                   {...register("name", { required: "Name is required" })}
-                  className={`outline-none border-none ring-1 mb-2 p-2 w-full ${
+                  className={`outline-none border-none ring-1 mb-1 p-2 w-full ${
                     errors.name ? "ring-red-600" : "ring-gray-300"
                   } rounded-md shadow-sm focus:ring-sky-600`}
                   placeholder="Enter property title/name"
@@ -545,13 +549,13 @@ const AddProperty = () => {
                   {...register("description", {
                     required: "Description is required",
                   })}
-                  className={`outline-none border-none ring-1 mb-2 p-2 w-full ${
+                  className={`outline-none border-none ring-1 mb-0 p-2 w-full ${
                     errors.description ? "ring-red-600" : "ring-gray-300"
                   } rounded-md shadow-sm focus:ring-sky-600`}
                   placeholder="Enter property description"
                 ></textarea>
                 {errors.description && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm mb-2">
                     {errors.description.message}
                   </p>
                 )}
@@ -572,15 +576,14 @@ const AddProperty = () => {
                         {...register("propertyType", {
                           required: "Please select an option",
                         })}
-                        onChange={() => setSelectedOption(value)}
-                        className="h-4 w-4 text-sky-600 focus:ring-sky-500"
+                        className="h-4 w-4 text-sky-600 focus:ring-sky-500 "
                       />
                       <span className="ml-2 text-gray-700">{value}</span>
                     </label>
                   ))}
                 </div>
                 {errors.propertyType && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-sm mb-2">
                     {errors.propertyType.message}
                   </p>
                 )}
@@ -592,31 +595,33 @@ const AddProperty = () => {
                 </label>
 
                 <div className="relative">
-                  {/* Currency Symbol */}
-                  <span className="absolute left-0 top-2 flex items-center pl-3 text-gray-500">
-                    ₹
-                  </span>
-                  {/* Input Field */}
-                  <input
-                    type="number"
-                    {...register("price", {
-                      required: "Price is required",
-                      validate: (value) =>
-                        !isNaN(value) || "Enter a valid price",
-                    })}
-                    className={`outline-none border-none ring-1 mb-2 pl-8 pr-4 py-2 ${
-                      errors.price ? "ring-red-600" : "ring-gray-300"
-                    } rounded-md shadow-sm focus:ring-sky-600`}
-                    style={{
-                      appearance: "textfield", // Removes arrows for Firefox
-                      MozAppearance: "textfield", // Removes arrows for Firefox
-                      WebkitAppearance: "none", // Removes arrows for Chrome/Safari
-                    }}
-                    placeholder="Enter price"
-                  />
-                  {selectedOption === "Rent" && (
-                    <span className="ml-2 text-xl">/month</span>
-                  )}
+                  <div className="flex justify-start items-baseline">
+                    {/* Currency Symbol */}
+                    <span className="absolute left-0 top-2 flex items-center pl-3 text-gray-500">
+                      ₹
+                    </span>
+                    {/* Input Field */}
+                    <input
+                      type="number"
+                      {...register("price", {
+                        required: "Price is required",
+                        validate: (value) =>
+                          !isNaN(value) || "Enter a valid price",
+                      })}
+                      className={`outline-none border-none ring-1 mb-2 pl-8 pr-4 py-2 ${
+                        errors.price ? "ring-red-600" : "ring-gray-300"
+                      } rounded-md shadow-sm focus:ring-sky-600`}
+                      // style={{
+                      //   appearance: "textfield", // Removes arrows for Firefox
+                      //   MozAppearance: "textfield", // Removes arrows for Firefox
+                      //   WebkitAppearance: "none", // Removes arrows for Chrome/Safari
+                      // }}
+                      placeholder="Enter price"
+                    />
+                    {selectedRadioOptions === "rent" && (
+                      <span className="ml-3 text-xl">/month</span>
+                    )}
+                  </div>
                   {errors.price && (
                     <p className="text-red-500 text-sm">
                       {errors.price.message}

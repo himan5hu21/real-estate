@@ -3,6 +3,7 @@ import { errorHandler } from "../utils/error.js";
 import User from "../models/user.model.js";
 import { phone } from "phone";
 import { validate } from "email-validator";
+import Listing from "../models/listing.model.js";
 
 export const test = (req, res) => {
   res.json({
@@ -163,6 +164,30 @@ export const deleteUser = async (req, res, next) => {
     await User.findByIdAndDelete(req.params.id);
     res.clearCookie("access_token");
     res.status(200).json({ success: true, message: "User has been deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserListings = async (req, res, next) => {
+  try {
+    if (!req.user || !req.params.id) {
+      return next(errorHandler(400, "Invalid request parameters"));
+    }
+
+    if (req.user.id !== req.params.id) {
+      return next(errorHandler(401, "You can only view your own lisitings!"));
+    }
+
+    const listings = await Listing.find({ userRef: req.params.id });
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Listings fetched successfully",
+        listings,
+      });
   } catch (error) {
     next(error);
   }

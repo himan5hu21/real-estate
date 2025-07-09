@@ -1,66 +1,125 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropertyCard from "../components/PropertyCard";
+import axios from "axios";
 
 const Properties = () => {
   const [isRenting, setIsRenting] = useState(false);
+  // const [filteredProperties, setFilteredProperties] = useState([]);
+  const [properties, setProperties] = useState([]);
 
-  const properties = [
-    {
-      id: 1,
-      title: "Luxury Apartment",
-      location: "New York, NY",
-      price: "$1,200,000",
-      imageUrl: "https://example.com/property1.jpg",
-      type: "buy",
-      bedrooms: 3,
-      bathrooms: 2,
-    },
-    {
-      id: 2,
-      title: "Cozy Cottage",
-      location: "Lake Tahoe, CA",
-      price: "$750,000",
-      imageUrl: "https://example.com/property2.jpg",
-      type: "buy",
-      bedrooms: 2,
-      bathrooms: 1,
-    },
-    {
-      id: 3,
-      title: "Modern Villa",
-      location: "Miami, FL",
-      price: "$2,000,000",
-      imageUrl: "https://example.com/property3.jpg",
-      type: "buy",
-      bedrooms: 4,
-      bathrooms: 3,
-    },
-    {
-      id: 4,
-      title: "Charming Apartment",
-      location: "Los Angeles, CA",
-      price: "$2,500/month",
-      imageUrl: "https://example.com/rent1.jpg",
-      type: "rent",
-      bedrooms: 1,
-      bathrooms: 1,
-    },
-    {
-      id: 5,
-      title: "Beach House",
-      location: "San Diego, CA",
-      price: "$3,000/month",
-      imageUrl: "https://example.com/rent2.jpg",
-      type: "rent",
-      bedrooms: 2,
-      bathrooms: 2,
-    },
-    // Add more properties as needed
-  ];
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const res = await axios.get("/api/listing/list");
+        setProperties(res.data.properties);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
 
-  const filteredProperties = properties.filter((property) =>
-    isRenting ? property.type === "rent" : property.type === "buy"
-  );
+    fetchProperties();
+  }, []);
+
+  // const properties = useMemo(
+  //   () => [
+  //     {
+  //       id: 1,
+  //       title: "Luxury Apartment",
+  //       location: "New York, NY",
+  //       price: "$1,200,000",
+  //       imageUrl: "https://example.com/property1.jpg",
+  //       type: "buy",
+  //       bedrooms: 3,
+  //       bathrooms: 2,
+  //     },
+  //     {
+  //       id: 2,
+  //       title: "Cozy Cottage",
+  //       location: "Lake Tahoe, CA",
+  //       price: "$750,000",
+  //       imageUrl: "https://example.com/property2.jpg",
+  //       type: "buy",
+  //       bedrooms: 2,
+  //       bathrooms: 1,
+  //     },
+  //     {
+  //       id: 3,
+  //       title: "Modern Villa",
+  //       location: "Miami, FL",
+  //       price: "$2,000,000",
+  //       imageUrl: "https://example.com/property3.jpg",
+  //       type: "buy",
+  //       bedrooms: 4,
+  //       bathrooms: 3,
+  //     },
+  //     {
+  //       id: 4,
+  //       title: "Charming Apartment",
+  //       location: "Los Angeles, CA",
+  //       price: "$2,500/month",
+  //       imageUrl: "https://example.com/rent1.jpg",
+  //       type: "buy",
+  //       bedrooms: 1,
+  //       bathrooms: 1,
+  //     },
+  //     {
+  //       id: 5,
+  //       title: "Beach House",
+  //       location: "San Diego, CA",
+  //       price: "$3,000/month",
+  //       imageUrl: "https://example.com/rent2.jpg",
+  //       type: "rent",
+  //       bedrooms: 2,
+  //       bathrooms: 2,
+  //     },
+  //     {
+  //       id: 6,
+  //       title: "Beach House",
+  //       location: "San Diego, CA",
+  //       price: "$3,000/month",
+  //       imageUrl: "https://example.com/rent2.jpg",
+  //       type: "buy",
+  //       bedrooms: 2,
+  //       bathrooms: 2,
+  //     },
+  //     {
+  //       id: 7,
+  //       title: "Beach House",
+  //       location: "San Diego, CA",
+  //       price: "$3,000/month",
+  //       imageUrl: "https://example.com/rent2.jpg",
+  //       type: "rent",
+  //       bedrooms: 2,
+  //       bathrooms: 2,
+  //     },
+  //     {
+  //       id: 8,
+  //       title: "Beach House",
+  //       location: "San Diego, CA",
+  //       price: "$3,000/month",
+  //       imageUrl: "https://example.com/rent2.jpg",
+  //       type: "rent",
+  //       bedrooms: 2,
+  //       bathrooms: 2,
+  //     },
+  //   ],
+  //   []
+  // );
+
+  // useEffect(() => {
+  //   const updatedProperties = properties.filter((property) =>
+  //     isRenting ? property.type === "rent" : property.type === "buy"
+  //   );
+  //   setFilteredProperties(updatedProperties);
+  // }, [isRenting, properties]);
+
+  const filteredProperties = useMemo(() => {
+    if (!properties) return [];
+    return properties.filter((property) =>
+      isRenting ? property.type === "rent" : property.type === "buy"
+    );
+  }, [isRenting, properties]);
+
   return (
     <div className="container mx-auto p-5">
       {/* Header Section */}
@@ -92,21 +151,21 @@ const Properties = () => {
       </div>
 
       {/* Search Section */}
-      <div className="mb-5">
+      <div className="flex items-center gap-5 mb-5 px-5">
         <input
           type="text"
           placeholder="Search properties..."
-          className="w-full p-2 border rounded-md"
+          className="w-full md:w-1/2 p-2 border rounded-md"
         />
-        <button className="mt-2 bg-sky-700 text-white px-4 py-2 rounded-md">
+        <button className=" bg-sky-700 text-white px-4 py-2 rounded-md">
           Search
         </button>
       </div>
 
       {/* Properties Grid Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid px-5 grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5 justify-items-start">
         {filteredProperties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
+          <PropertyCard key={property._id} property={property} />
         ))}
       </div>
     </div>

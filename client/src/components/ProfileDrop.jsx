@@ -23,6 +23,7 @@ const ProfileDrop = React.memo(() => {
 
   const navigation = [
     { title: "My Profile", path: "/profile" },
+    { title: "My Properties", path: "/myProperties" },
     { title: "Add Properties", path: "/addProperty" },
     { title: "Log out", path: "#logout" },
   ];
@@ -61,7 +62,7 @@ const ProfileDrop = React.memo(() => {
       <div className={`flex items-center space-x-4`}>
         <button
           ref={profileRef}
-          className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-gray-200 ring-2 md:focus:ring-sky-700"
+          className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-gray-200 ring-2 md:hover:ring-gray-300 md:focus:ring-sky-700"
           onClick={handleDropdownToggle}
           aria-haspopup="true"
           aria-expanded={isOpen}
@@ -82,9 +83,11 @@ const ProfileDrop = React.memo(() => {
           </span>
         </div>
       </div>
+
+      {/* Drop down menu */}
       <ul
         className={classNames(
-          "bg-transparent top-12 right-0 mt-5 space-y-5 md:bg-white md:absolute md:border md:rounded-md md:text-sm md:w-52 md:shadow-md md:space-y-0 md:mt-0 md:z-50",
+          "bg-transparent top-12 right-0 mt-5 space-y-0 md:bg-white md:absolute md:border md:rounded-md md:text-sm md:w-52 md:shadow-md md:mt-0 md:z-50",
           { "md:hidden": !isOpen, block: isOpen }
         )}
       >

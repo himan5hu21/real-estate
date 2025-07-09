@@ -29,14 +29,14 @@ const Hero = () => {
           <div className="flex gap-3">
             <Link
               to="/Properties"
-              className="flex items-center bg-slate-800 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:scale-105 hover:shadow-lg transition-all duration-300"
+              className="flex items-center bg-slate-800 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:shadow-lg transition-shadow duration-300"
             >
               <IoMdList className="text-xl xl:text-2xl pr-1" />
               Explore Properties
             </Link>
             <Link
               to="/addProperty"
-              className="flex items-center bg-sky-600 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:scale-105 hover:shadow-lg transition-all duration-300"
+              className="flex items-center bg-sky-600 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:shadow-lg hover:shadow-gray-300 transition-shadow duration-300"
             >
               <IoMdAdd className="text-xl xl:text-2xl pr-1" />
               Add Property

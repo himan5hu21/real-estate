@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { isTokenExpired } from "../../utils/auth";
 
 const initialState = {
   currentUser: null,
   error: null,
   loading: false,
+  token: localStorage.getItem("token") || null,
 };
 
 const userSlice = createSlice({
@@ -24,8 +26,10 @@ const userSlice = createSlice({
     },
     signInSuccess: (state, action) => {
       state.currentUser = action.payload.user;
+      state.token = action.payload.token; // Save token to localStorage
       state.loading = false;
       state.error = null;
+      localStorage.setItem("token", action.payload.token); // Save token to localStorage
     },
     signUpSuccess: (state) => {
       state.loading = false;
@@ -45,6 +49,15 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.currentUser = null;
+      state.token = null;
+      localStorage.removeItem("token");
+    },
+    checkTokenExpiry: (state) => {
+      if (isTokenExpired(state.token)) {
+        state.currentUser = null;
+        state.token = null;
+        localStorage.removeItem("token"); // Remove token from localStorage
+      }
     },
   },
 });
@@ -58,6 +71,7 @@ export const {
   updateUserSuccess,
   updatePasswordSuccess,
   signOutSuccess,
+  checkTokenExpiry,
 } = userSlice.actions;
 
 export default userSlice.reducer;

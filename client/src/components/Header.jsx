@@ -52,7 +52,7 @@ const Header = () => {
             className={classNames(
               "bg-slate-200 z-20 p-4 border-l border-gray-400 transition-transform",
               {
-                "fixed top-0 right-0 w-3/4 sm:w-1/2 h-full": isMobile,
+                "fixed top-0 right-0 w-3/4 sm:w-1/2 h-full z-50": isMobile,
                 "absolute w-full top-16 left-0 border-b md:static md:block md:border-none":
                   !isMobile,
                 "translate-x-0": isOpen,
@@ -88,7 +88,7 @@ const Header = () => {
               <ProfileDropDown class="mb-5 pb-5 border-b border-gray-400 md:hidden" />
             )}
 
-            <ul className="mt-6 space-y-5 md:flex md:space-x-6 md:space-y-0 md:mt-0  ">
+            <ul className="mt-6 space-y-0 md:flex md:space-x-6 md:mt-0  ">
               {navigation.map((item, idx) => (
                 <li
                   key={idx}

@@ -23,7 +23,7 @@ function Footer() {
               Laudantium et, atque saepe error laboriosam consequuntur?
             </p>
             <p className="mt-4 text-white/70">
-              Copyright 2024 KeyHaven. All rights reserved.
+              &#169; 2024 KeyHaven. All rights reserved.
             </p>
           </a>
           {/* Quick Links */}
