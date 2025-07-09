@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 // import { Link } from "react-router-dom";
 
 const PropertyCard = ({ property }) => {
-  const { imageUrls, area, bedrooms, bathrooms, address, price, type } =
+  const { imageUrls, name, bedrooms, bathrooms, address, price, type } =
     property;
 
   const imageUrl = imageUrls[0];
@@ -38,7 +38,7 @@ const PropertyCard = ({ property }) => {
           <div className="mt-1">
             <dt className="sr-only">Name/Title</dt>
 
-            <dd className="text-sm font-semibold text-gray-900">{area}</dd>
+            <dd className="text-sm font-semibold text-gray-900">{name}</dd>
           </div>
 
           <div>
@@ -106,7 +106,7 @@ PropertyCard.propTypes = {
   property: PropTypes.shape({
     _id: PropTypes.string.isRequired,
     imageUrls: PropTypes.array.isRequired,
-    area: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
     bedrooms: PropTypes.number.isRequired,
     bathrooms: PropTypes.number.isRequired,
     address: PropTypes.object.isRequired,

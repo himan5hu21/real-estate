@@ -39,6 +39,31 @@ export const deleteListing = async (req, res, next) => {
   }
 };
 
+export const updateListing = async (req, res, next) => {
+  try {
+    const listingId = req.params.id;
+
+    const updatedListing = await Listing.findByIdAndUpdate(
+      listingId,
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!updatedListing) {
+      return next(errorHandler(404, "Property not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Property updated successfully",
+      listing: updatedListing,
+    });
+  } catch (error) {
+    console.error("Error updating listing:", error.message);
+    next(error);
+  }
+};
+
 export const listingProperty = async (req, res, next) => {
   try {
     const {
@@ -127,6 +152,24 @@ export const searchListing = async (req, res, next) => {
       totalPages,
     });
   } catch (err) {
+    next(err);
+  }
+};
+
+export const getSingleListing = async (req, res, next) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+      return next(errorHandler(404, "Property not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      listing,
+    });
+  } catch (err) {
+    console.error("Error fetching listing:", err.message);
     next(err);
   }
 };

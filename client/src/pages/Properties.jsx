@@ -167,6 +167,7 @@ const Properties = () => {
         {filteredProperties.map((property) => (
           <PropertyCard key={property._id} property={property} />
         ))}
+        {console.log(properties[1])}
       </div>
     </div>
   );

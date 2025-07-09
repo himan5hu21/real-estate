@@ -4,10 +4,12 @@ import PropertyCard from "../components/PropertyCard";
 import { useSelector } from "react-redux";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 function MyProperty() {
   const userId = useSelector((state) => state.user.currentUser._id);
   const [properties, setProperties] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -54,7 +56,10 @@ function MyProperty() {
           <div key={property._id} className="relative">
             <PropertyCard property={property} />
             <div className="absolute top-2 right-2 flex justify-between gap-2 items-center text-sky-600 ">
-              <button className="rounded-full bg-slate-100 p-2">
+              <button
+                className="rounded-full bg-slate-100 p-2"
+                onClick={() => navigate(`/edit-property/${property._id}`)}
+              >
                 <FaRegEdit />
               </button>
               <button
