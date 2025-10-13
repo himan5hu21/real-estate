@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^2.0.1",
+    "@googlemaps/react-wrapper": "^1.2.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.7",

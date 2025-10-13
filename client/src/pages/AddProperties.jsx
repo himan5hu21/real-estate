@@ -19,11 +19,86 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "../assets/css/pages.css";
 
+// Utility functions for number formatting
+const formatNumber = (value) => {
+  if (!value || value === "") return "";
+  const num = parseInt(value.toString().replace(/,/g, ""));
+  if (isNaN(num)) return "";
+  return num.toLocaleString('en-IN');
+};
+
+const parseNumber = (value) => {
+  if (!value || value === "") return "";
+  return value.toString().replace(/,/g, "");
+};
+
+// Enhanced number input component with better editing support
+const FormattedNumberInput = ({
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  label,
+  className = ""
+}) => {
+  const [displayValue, setDisplayValue] = useState(formatNumber(value));
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    // Always show formatted value, but track if user is actively editing
+    setDisplayValue(formatNumber(value));
+  }, [value]);
+
+  const handleFocus = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    onBlur && onBlur();
+  };
+
+  const handleChange = (e) => {
+    const inputValue = e.target.value;
+    // Allow only numbers and commas for formatted input
+    const cleanedValue = inputValue.replace(/[^\d,]/g, '');
+
+    // Parse the cleaned value to get the actual number
+    const parsedValue = parseNumber(cleanedValue);
+
+    // Update display to show what user types (with formatting)
+    setDisplayValue(formatNumber(parsedValue) || cleanedValue);
+
+    // Update parent state with parsed number
+    onChange(parsedValue);
+  };
+
+  return (
+    <div>
+      {label && (
+        <label className="block text-gray-700 font-medium pb-1">
+          {label}
+        </label>
+      )}
+      <input
+        type="text"
+        value={displayValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={`outline-none border-none ring-1 mb-2 p-2 ${className} rounded-md shadow-sm focus:ring-sky-600`}
+      />
+    </div>
+  );
+};
+
 const AddProperty = () => {
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
@@ -193,7 +268,7 @@ const AddProperty = () => {
         country: data.country,
         postalCode: parseInt(data.postalCode, 10) || 0,
       },
-      price: data.price,
+      price: parseInt(data.price, 10) || 0, // Ensure price is stored as a number
       type: data.propertyType,
       bedrooms: details.bedroomsCount,
       bathrooms: details.bathroomsCount,
@@ -601,22 +676,16 @@ const AddProperty = () => {
                       ₹
                     </span>
                     {/* Input Field */}
-                    <input
-                      type="number"
-                      {...register("price", {
-                        required: "Price is required",
-                        validate: (value) =>
-                          !isNaN(value) || "Enter a valid price",
-                      })}
-                      className={`outline-none border-none ring-1 mb-2 pl-8 pr-4 py-2 ${
-                        errors.price ? "ring-red-600" : "ring-gray-300"
-                      } rounded-md shadow-sm focus:ring-sky-600`}
-                      // style={{
-                      //   appearance: "textfield", // Removes arrows for Firefox
-                      //   MozAppearance: "textfield", // Removes arrows for Firefox
-                      //   WebkitAppearance: "none", // Removes arrows for Chrome/Safari
-                      // }}
-                      placeholder="Enter price"
+                    <FormattedNumberInput
+                      value={watch("price") || ""}
+                      onChange={(value) => {
+                        // Ensure the value is properly converted to a number
+                        const numericValue = value ? parseInt(value.toString().replace(/,/g, ""), 10) : "";
+                        setValue("price", numericValue);
+                      }}
+                      onBlur={() => {}}
+                      placeholder="e.g., 25,00,000"
+                      className={`pl-8 pr-4 py-2 ${errors.price ? "ring-red-600" : "ring-gray-300"}`}
                     />
                     {selectedRadioOptions === "rent" && (
                       <span className="ml-3 text-xl">/month</span>

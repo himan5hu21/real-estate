@@ -14,31 +14,42 @@ const Hero = () => {
         {/* left */}
         <div className="flex justify-center flex-1 flex-col gap-y-6 xl:gap-y-8 xl:max-w-[555px] relative">
           <h1 className="text-3xl xl:text-4xl font-extrabold">
-            Invest in <span className="text-sky-600">Your Future</span> with
-            confidence
+            Find Your <span className="text-sky-600">Dream Home</span> with
+            KeyHaven
           </h1>
           <p className="text-sm xl:text-base leading-relaxed">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto
-            quo dolore, dolores ut obcaecati quis voluptate! Repellat debitis
-            excepturi, accusantium amet distinctio animi qui maxime ex, dicta
-            molestias voluptates dolores, labore tenetur temporibus sapiente
-            repellendus est soluta voluptatum? Provident omnis quibusdam
-            molestiae amet adipisci ratione perspiciatis repudiandae architecto
-            minima! Possimus est voluptates unde repellat aperiam?
+            Discover exceptional properties across India with our expert guidance. Whether you're buying your first home, investing in property, or looking for the perfect rental, we make the process simple, transparent, and successful.
           </p>
+
+          {/* Statistics */}
+          <div className="grid grid-cols-3 gap-4 py-4">
+            <div className="text-center">
+              <div className="text-2xl xl:text-3xl font-bold text-sky-600">10K+</div>
+              <div className="text-sm text-gray-600">Properties Listed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl xl:text-3xl font-bold text-sky-600">5K+</div>
+              <div className="text-sm text-gray-600">Happy Clients</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl xl:text-3xl font-bold text-sky-600">15+</div>
+              <div className="text-sm text-gray-600">Cities Covered</div>
+            </div>
+          </div>
+
           <div className="flex gap-3">
             <Link
-              to="/Properties"
-              className="flex items-center bg-slate-800 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:shadow-lg transition-shadow duration-300"
+              to="/properties"
+              className="flex items-center bg-slate-800 text-white py-3 px-6 rounded-full text-sm xl:text-base hover:shadow-lg transition-all duration-300 hover:bg-slate-700"
             >
-              <IoMdList className="text-xl xl:text-2xl pr-1" />
+              <IoMdList className="text-xl xl:text-2xl mr-2" />
               Explore Properties
             </Link>
             <Link
               to="/addProperty"
-              className="flex items-center bg-sky-600 text-white py-2 px-4 rounded-full text-sm xl:text-base hover:shadow-lg hover:shadow-gray-300 transition-shadow duration-300"
+              className="flex items-center bg-sky-600 text-white py-3 px-6 rounded-full text-sm xl:text-base hover:shadow-lg hover:shadow-sky-200 transition-all duration-300 hover:bg-sky-700"
             >
-              <IoMdAdd className="text-xl xl:text-2xl pr-1" />
+              <IoMdAdd className="text-xl xl:text-2xl mr-2" />
               Add Property
             </Link>
           </div>
@@ -51,12 +62,12 @@ const Hero = () => {
             />
             <img
               src={person1}
-              alt="person 1"
+              alt="Happy Client 1"
               className="rounded-full h-[60px] xl:h-[99px] shadow-sm absolute left-12 xl:left-16 z-20"
             />
             <img
               src={person2}
-              alt="person 2"
+              alt="Happy Client 2"
               className="rounded-full h-[60px] xl:h-[99px] shadow-sm absolute left-24 xl:left-32 z-10"
             />
           </div>
@@ -66,7 +77,7 @@ const Hero = () => {
           <div className="rounded-2xl h-[180px] sm:h-auto md:h-[366px] xl:h-[266px] overflow-hidden">
             <img
               src={sideimage}
-              alt="sideimage"
+              alt="Beautiful property interior"
               className="rounded-xl object-cover w-full h-full"
             />
           </div>
@@ -74,14 +85,14 @@ const Hero = () => {
             <div className="flex flex-1 rounded-xl">
               <img
                 src={sideimage1}
-                alt="sideimage"
+                alt="Modern kitchen"
                 className="rounded-xl aspect-square object-cover w-full h-full"
               />
             </div>
             <div className="flex flex-1 rounded-xl">
               <img
                 src={sideimage2}
-                alt="sideimage"
+                alt="Cozy living room"
                 className="rounded-xl aspect-square object-cover w-full h-full"
               />
             </div>

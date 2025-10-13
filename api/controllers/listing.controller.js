@@ -85,8 +85,8 @@ export const listingProperty = async (req, res, next) => {
     if (city) filter["address.city"] = new RegExp(city, "i");
     if (minprice || maxprice) {
       filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
+      if (minprice) filter.price.$gte = Number(minprice);
+      if (maxprice) filter.price.$lte = Number(maxprice);
     }
     if (bedrooms) filter.bedrooms = { $gte: Number(bedrooms) };
 
@@ -192,5 +192,97 @@ export const getOwnerDetail = async (req, res, next) => {
   } catch (err) {
     console.error("Error fetching owner details:", err.message);
     next(err);
+  }
+};
+
+export const addToFavorites = async (req, res, next) => {
+  try {
+    const { listingId } = req.params;
+    const userId = req.user.id;
+
+    // Check if listing exists
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return next(errorHandler(404, "Listing not found"));
+    }
+
+    // Find user and check if listing is already in favorites
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    if (user.favorites.includes(listingId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Listing is already in favorites",
+      });
+    }
+
+    // Add listing to favorites
+    user.favorites.push(listingId);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Listing added to favorites",
+      favorites: user.favorites,
+    });
+  } catch (error) {
+    console.error("Error adding to favorites:", error.message);
+    next(error);
+  }
+};
+
+export const removeFromFavorites = async (req, res, next) => {
+  try {
+    const { listingId } = req.params;
+    const userId = req.user.id;
+
+    // Find user and remove listing from favorites
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    if (!user.favorites.includes(listingId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Listing is not in favorites",
+      });
+    }
+
+    // Remove listing from favorites
+    user.favorites = user.favorites.filter(id => id.toString() !== listingId);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Listing removed from favorites",
+      favorites: user.favorites,
+    });
+  } catch (error) {
+    console.error("Error removing from favorites:", error.message);
+    next(error);
+  }
+};
+
+export const getFavorites = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).populate('favorites');
+    if (!user) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      favorites: user.favorites,
+      count: user.favorites.length,
+    });
+  } catch (error) {
+    console.error("Error fetching favorites:", error.message);
+    next(error);
   }
 };

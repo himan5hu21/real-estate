@@ -49,8 +49,7 @@ function Footer() {
           <div>
             <h4 className="text-lg mb-4 font-semibold">Contact Us</h4>
             <p className="text-gray-100 mb-2">
-              <BsTelephoneFill className="inline-block mr-2" /> +1 (123)
-              456-7890
+              <BsTelephoneFill className="inline-block mr-2" /> +91 9876543210
             </p>
             <p className="text-gray-100 mb-2">
               <BsEnvelopeFill className="inline-block mr-2" />{" "}

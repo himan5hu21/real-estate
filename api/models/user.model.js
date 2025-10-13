@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema(
     preferences: {
       type: String,
     },
+    favorites: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Listing",
+      default: [],
+    },
   },
   { timestamps: true }
 );

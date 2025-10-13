@@ -25,6 +25,7 @@ const ProfileDrop = React.memo(() => {
     { title: "My Profile", path: "/profile" },
     { title: "My Properties", path: "/myProperties" },
     { title: "Add Properties", path: "/addProperty" },
+    { title: "Favorite Properties", path: "/favoriteProperties" },
     { title: "Log out", path: "#logout" },
   ];
 

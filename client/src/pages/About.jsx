@@ -1,630 +1,222 @@
-// function About() {
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex justify-center items-center">
-//       <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-//         <div className="bg-blue-500 h-32"></div>
-
-//         <div className="relative -mt-16 px-6 py-4">
-//           <div className="flex justify-center">
-//             <img
-//               className="w-32 h-32 rounded-full border-4 border-white object-cover"
-//               src="https://via.placeholder.com/150"
-//               alt="Profile"
-//             />
-//           </div>
-
-//           <div className="text-center mt-2">
-//             <h2 className="text-2xl font-semibold text-gray-800">
-//               Himanshu Devaiya
-//             </h2>
-//             <p className="text-gray-600">Aspiring MERN Stack Developer</p>
-//           </div>
-
-//           <div className="text-center mt-4">
-//             <p className="text-gray-700">
-//               Passionate about building modern web applications and learning new
-//               technologies. Always excited about solving complex problems.
-//             </p>
-//           </div>
-
-//           <div className="mt-4 flex justify-center space-x-4">
-//             <a
-//               href="https://github.com/"
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="text-gray-700 hover:text-gray-900"
-//             >
-//               <svg
-//                 className="w-6 h-6"
-//                 fill="currentColor"
-//                 viewBox="0 0 24 24"
-//                 xmlns="http://www.w3.org/2000/svg"
-//               >
-//                 <path
-//                   fillRule="evenodd"
-//                   d="M12 0C5.37 0 0 5.37 0 12a12 12 0 008.21 11.38c.6.11.82-.26.82-.57v-2.17c-3.34.73-4.03-1.44-4.03-1.44-.54-1.36-1.32-1.72-1.32-1.72-1.08-.73.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.06 1.82 2.79 1.3 3.47.99.1-.77.42-1.3.76-1.6-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.53.12-3.2 0 0 1.01-.32 3.3 1.23A11.52 11.52 0 0112 6.84c1.04.01 2.09.14 3.06.42 2.3-1.55 3.31-1.23 3.31-1.23.66 1.67.25 2.9.12 3.2.78.84 1.24 1.91 1.24 3.22 0 4.62-2.81 5.65-5.5 5.95.43.37.82 1.1.82 2.22v3.29c0 .32.22.69.83.57A12.01 12.01 0 0024 12c0-6.63-5.37-12-12-12z"
-//                   clipRule="evenodd"
-//                 />
-//               </svg>
-//             </a>
-
-//             <a
-//               href="https://linkedin.com/"
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="text-gray-700 hover:text-gray-900"
-//             >
-//               <svg
-//                 className="w-6 h-6"
-//                 fill="currentColor"
-//                 viewBox="0 0 24 24"
-//                 xmlns="http://www.w3.org/2000/svg"
-//               >
-//                 <path
-//                   fillRule="evenodd"
-//                   d="M19 0H5C2.25 0 0 2.25 0 5v14c0 2.75 2.25 5 5 5h14c2.75 0 5-2.25 5-5V5c0-2.75-2.25-5-5-5zM8 19H5v-9h3v9zM6.5 8.5C5.12 8.5 4 7.38 4 6s1.12-2.5 2.5-2.5S9 4.62 9 6 7.88 8.5 6.5 8.5zM20 19h-3v-5c0-2.5-3-2.25-3 0v5h-3v-9h3v1.25C15.54 10 19 9.75 19 13.75V19z"
-//                   clipRule="evenodd"
-//                 />
-//               </svg>
-//             </a>
-
-//             <a
-//               href="https://twitter.com/"
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="text-gray-700 hover:text-gray-900"
-//             >
-//               <svg
-//                 className="w-6 h-6"
-//                 fill="currentColor"
-//                 viewBox="0 0 24 24"
-//                 xmlns="http://www.w3.org/2000/svg"
-//               >
-//                 <path
-//                   fillRule="evenodd"
-//                   d="M23.95 4.57c-.88.39-1.83.65-2.83.77a4.92 4.92 0 002.16-2.71 9.87 9.87 0 01-3.1 1.2 4.93 4.93 0 00-8.39 4.49A13.99 13.99 0 011.67 3.15a4.91 4.91 0 001.52 6.57 4.87 4.87 0 01-2.23-.61v.06a4.93 4.93 0 003.95 4.83 4.97 4.97 0 01-2.22.08 4.93 4.93 0 004.6 3.42 9.88 9.88 0 01-6.13 2.11c-.4 0-.79-.02-1.18-.07a13.94 13.94 0 007.55 2.21c9.05 0 14-7.5 14-14v-.64A9.93 9.93 0 0024 4.56c-.88.39-1.83.65-2.83.77a4.92 4.92 0 002.16-2.71z"
-//                   clipRule="evenodd"
-//                 />
-//               </svg>
-//             </a>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default About;
-
-// import React, { useState } from "react";
-
-// const About = () => {
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [formData, setFormData] = useState({
-//     name: "John Doe",
-//     screenName: "johnny123",
-//     email: "john.doe@example.com",
-//     phone: "123-456-7890",
-//     address: "123 Main St, Cityville",
-//     preferences: "No preferences set",
-//     photo: null,
-//     isVerified: false,
-//   });
-
-//   const handleEditClick = () => {
-//     setIsEditing(!isEditing);
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({
-//       ...formData,
-//       [name]: value,
-//     });
-//   };
-
-//   const handleFileChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       photo: URL.createObjectURL(e.target.files[0]), // Temporary URL for image preview
-//     });
-//   };
-
-//   const handleCancel = () => {
-//     // Reset the formData to default values or previous values if required
-//     setIsEditing(false);
-//   };
-
-//   const inputAndLabel = (title, type, name, value) => (
-//     <div className="flex flex-col">
-//       <label className="text-sm font-medium text-gray-600">{title}</label>
-//       {isEditing ? (
-//         <input
-//           type={type}
-//           name={name}
-//           value={value || ""}
-//           onChange={handleChange}
-//           className="mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//         />
-//       ) : (
-//         <span className="mt-1 text-gray-800">{value || "-"}</span>
-//       )}
-//     </div>
-//   );
-
-//   const buttonsAndLabel = (title, value) => (
-//     <div className="flex justify-between items-center mb-4">
-//       <div className="text-sm font-medium text-gray-600">{title}</div>
-//       <button
-//         className={`w-36 border-2 border-sky-700 hover:bg-sky-700  text-sky-700 hover:text-white px-3 py-1 rounded-md text-sm transition-all duration-300`}
-//       >
-//         {value}
-//       </button>
-//     </div>
-//   );
-
-//   return (
-//     <div className="container mx-auto p-4 md:p-8">
-//       {/* Profile Photo Section */}
-//       <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 text-center">
-//         <h2 className="text-xl font-semibold mb-6">Profile Photo</h2>
-//         <div className="relative mb-4">
-//           <img
-//             src={
-//               formData.photo
-//                 ? formData.photo
-//                 : "https://via.placeholder.com/150"
-//             }
-//             alt="Profile"
-//             className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-gray-300 shadow-lg"
-//           />
-//           {isEditing && (
-//             <label className="block mt-4">
-//               <span className="inline-block px-4 py-2 bg-blue-500 text-white font-semibold rounded-md cursor-pointer hover:bg-blue-600 transition-all">
-//                 Upload Photo
-//                 <input
-//                   type="file"
-//                   name="photo"
-//                   onChange={handleFileChange}
-//                   className="hidden"
-//                 />
-//               </span>
-//             </label>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* Personal Info Section */}
-//       <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 mt-8">
-//         <h2 className="text-xl font-semibold mb-6">Personal Info</h2>
-//         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-//           {inputAndLabel("Name", "text", "name", formData.name)}
-//           {inputAndLabel("Username", "text", "username", formData.screenName)}
-//           {inputAndLabel("Email", "email", "email", formData.email)}
-//           {inputAndLabel("Phone", "tel", "phone", formData.phone)}
-//           {inputAndLabel(
-//             "Preferences",
-//             "text",
-//             "preferences",
-//             formData.preferences
-//           )}
-//         </div>
-
-//         {/* Save and Cancel Buttons */}
-//         {isEditing && (
-//           <div className="mt-6 flex space-x-4">
-//             <button
-//               onClick={handleEditClick}
-//               className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600"
-//             >
-//               Save Changes
-//             </button>
-//             <button
-//               onClick={handleCancel}
-//               className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-//             >
-//               Cancel
-//             </button>
-//           </div>
-//         )}
-
-//         {!isEditing && (
-//           <div className="mt-6">
-//             <button
-//               onClick={handleEditClick}
-//               className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600"
-//             >
-//               Edit Profile
-//             </button>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Sign in & Security Section */}
-//       <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6 mt-8">
-//         <h2 className="text-xl font-semibold mb-6">Sign in & Security</h2>
-
-//         {buttonsAndLabel("Password", "Change password")}
-//         {buttonsAndLabel("Delete My Accout", "Delete Account")}
-//         {buttonsAndLabel("Log Out", "Log Out")}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default About;
-
-// const {
-//   register,
-//   handleSubmit,
-//   reset,
-//   formState: { errors },
-// } = useForm();
-// const [images, setImages] = useState([]);
-
-// const handleImageUpload = (e) => {
-//   const files = Array.from(e.target.files);
-//   const fileUrls = files.map((file) => URL.createObjectURL(file));
-//   setImages([...images, ...fileUrls]);
-// };
-
-// const handleImageDelete = (index) => {
-//   setImages(images.filter((_, i) => i !== index));
-// };
-
-// const onSubmit = (data) => {
-//   data.imageUrls = images;
-//   console.log("Property Data:", data);
-//   reset();
-//   setImages([]);
-// };
-
-// return (
-//   <div className="py-5 flex justify-center items-center min-h-screen bg-gray-50">
-//     <form
-//       onSubmit={handleSubmit(onSubmit)}
-//       className="bg-white p-8 rounded-lg shadow-md w-full max-w-xl"
-//     >
-//       <h2 className="text-3xl font-bold mb-6 text-gray-800">Add Property</h2>
-
-//       {/* Property Name */}
-//       <div className="mb-4">
-//         <label className="block text-gray-700 font-medium">
-//           Property Name
-//         </label>
-//         <input
-//           {...register("name", { required: "Name is required" })}
-//           className={`w-full outline-none border p-2 ${
-//             errors.name ? "border-red-500" : "border-gray-300"
-//           } rounded-md shadow-sm focus:ring-1 focus:ring-sky-600 focus:border-sky-600`}
-//           placeholder="Enter property name"
-//         />
-//         {errors.name && (
-//           <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-//         )}
-//       </div>
-
-//       {/* Description */}
-//       <div className="mb-4">
-//         <label className="block text-gray-700 font-medium">Description</label>
-//         <textarea
-//           {...register("description", {
-//             required: "Description is required",
-//           })}
-//           className={`w-full outline-none border p-2 ${
-//             errors.description ? "border-red-500" : "border-gray-300"
-//           } rounded-md shadow-sm focus:ring-1 focus:ring-sky-600 focus:border-sky-600`}
-//           rows="4"
-//           placeholder="Enter property description"
-//         />
-//         {errors.description && (
-//           <p className="text-red-500 text-sm mt-1">
-//             {errors.description.message}
-//           </p>
-//         )}
-//       </div>
-
-//       {/* Address */}
-//       <div className="mb-4">
-//         <label className="block text-gray-700 font-medium">Address</label>
-//         <input
-//           {...register("address", { required: "Address is required" })}
-//           className={`w-full outline-none border p-2 ${
-//             errors.address ? "border-red-500" : "border-gray-300"
-//           } rounded-md shadow-sm focus:ring-1 focus:ring-sky-600 focus:border-sky-600`}
-//           placeholder="Enter property address"
-//         />
-//         {errors.address && (
-//           <p className="text-red-500 text-sm mt-1">
-//             {errors.address.message}
-//           </p>
-//         )}
-//       </div>
-
-//       {/* Price */}
-//       <div className="grid grid-cols-2 gap-4 mb-4">
-//         <div>
-//           <label className="block text-gray-700 font-medium">
-//             Regular Price
-//           </label>
-//           <input
-//             type="number"
-//             {...register("regularPrice", {
-//               required: "Regular price is required",
-//             })}
-//             className={`w-full border ${
-//               errors.regularPrice ? "border-red-500" : "border-gray-300"
-//             } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
-//             placeholder="Enter regular price"
-//           />
-//           {errors.regularPrice && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.regularPrice.message}
-//             </p>
-//           )}
-//         </div>
-//         <div>
-//           <label className="block text-gray-700 font-medium">
-//             Discount Price
-//           </label>
-//           <input
-//             type="number"
-//             {...register("discountPrice")}
-//             className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-//             placeholder="Enter discount price"
-//           />
-//         </div>
-//       </div>
-
-//       {/* Features */}
-//       <div className="grid grid-cols-3 gap-4 mb-4">
-//         <div>
-//           <label className="block text-gray-700 font-medium">Bedrooms</label>
-//           <input
-//             type="number"
-//             {...register("bedrooms", {
-//               required: "Number of bedrooms is required",
-//             })}
-//             className={`w-full border ${
-//               errors.bedrooms ? "border-red-500" : "border-gray-300"
-//             } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
-//             placeholder="Enter bedrooms"
-//           />
-//           {errors.bedrooms && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.bedrooms.message}
-//             </p>
-//           )}
-//         </div>
-//         <div>
-//           <label className="block text-gray-700 font-medium">Bathrooms</label>
-//           <input
-//             type="number"
-//             {...register("bathrooms", {
-//               required: "Number of bathrooms is required",
-//             })}
-//             className={`w-full border ${
-//               errors.bathrooms ? "border-red-500" : "border-gray-300"
-//             } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
-//             placeholder="Enter bathrooms"
-//           />
-//           {errors.bathrooms && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.bathrooms.message}
-//             </p>
-//           )}
-//         </div>
-//         <div>
-//           <label className="block text-gray-700 font-medium">Type</label>
-//           <select
-//             {...register("type", { required: "Property type is required" })}
-//             className={`w-full border ${
-//               errors.type ? "border-red-500" : "border-gray-300"
-//             } rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
-//           >
-//             <option value="">Select type</option>
-//             <option value="Apartment">Apartment</option>
-//             <option value="House">House</option>
-//             <option value="Condo">Condo</option>
-//           </select>
-//           {errors.type && (
-//             <p className="text-red-500 text-sm mt-1">{errors.type.message}</p>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* Amenities */}
-//       <div className="grid grid-cols-2 gap-4 mb-4">
-//         <div className="flex items-center">
-//           <input
-//             type="checkbox"
-//             {...register("furnished")}
-//             className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-//           />
-//           <label className="ml-2 text-gray-700">Furnished</label>
-//         </div>
-//         <div className="flex items-center">
-//           <input
-//             type="checkbox"
-//             {...register("parking")}
-//             className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-//           />
-//           <label className="ml-2 text-gray-700">Parking</label>
-//         </div>
-//       </div>
-
-//       {/* Special Offer */}
-//       <div className="mb-4 flex items-center">
-//         <input
-//           type="checkbox"
-//           {...register("offer")}
-//           className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-//         />
-//         <label className="ml-2 text-gray-700">Special Offer</label>
-//       </div>
-
-//       {/* Image Upload */}
-//       <div className="mb-4">
-//         <label className="block text-gray-700 font-medium">
-//           Image Upload
-//         </label>
-//         <input
-//           type="file"
-//           onChange={handleImageUpload}
-//           className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-//           accept="image/*"
-//           multiple
-//         />
-//       </div>
-
-//       {images.length > 0 && (
-//         <div className="mb-4">
-//           <label className="block text-gray-700 font-medium">
-//             Preview Images
-//           </label>
-//           <div className="grid grid-cols-3 gap-2">
-//             {images.map((src, index) => (
-//               <div key={index} className="relative group">
-//                 <img
-//                   src={src}
-//                   alt={`Preview ${index}`}
-//                   className="h-20 w-full object-cover rounded-md shadow"
-//                 />
-//                 <button
-//                   type="button"
-//                   onClick={() => handleImageDelete(index)}
-//                   className="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-//                   title="Delete"
-//                 >
-//                   ✕
-//                 </button>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Submit Button */}
-//       <button
-//         type="submit"
-//         className="w-full bg-indigo-600 text-white py-2 rounded-md shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500"
-//       >
-//         Add Property
-//       </button>
-//     </form>
-//   </div>
-// );
-
-//Import dependencies
-import { useState, useEffect } from "react";
-
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { IoIosImages } from "react-icons/io";
+import React from 'react';
+import Footer from '../components/Footer';
 
 const About = () => {
-  const [images, setImages] = useState([]);
-
-  useEffect(() => {
-    return () => {
-      images.forEach((image) => URL.revokeObjectURL(image.url));
-    };
-  }, [images]);
-
-  //  Handle file input
-  const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    const newImages = files.map((file) => {
-      const url = URL.createObjectURL(file);
-      return { id: `${file.name}-${Math.random()}`, url, file };
-    });
-    setImages((prev) => [...prev, ...newImages]);
-  };
-
-  //  Handle drag and drop
-  const handleOnDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const items = Array.from(images);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setImages(items);
-  };
-
-  //  Handle image removal
-  const handleRemoveImage = (id) => {
-    setImages((prev) => prev.filter((image) => image.id !== id));
-  };
-
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-md">
-      <h1 className="text-xl font-bold mb-4">Upload Photos</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            About KeyHaven
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+            Your trusted partner in finding the perfect home. With years of experience in the real estate market, we're committed to helping you achieve your property dreams.
+          </p>
+          <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            Learn More About Us
+          </button>
+        </div>
+      </section>
 
-      <DragDropContext onDragEnd={handleOnDragEnd}>
-        <Droppable droppableId="images" direction="horizontal">
-          {(provided) => (
-            <div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg shadow-lg"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {images.map((image, index) => (
-                <Draggable key={image.id} draggableId={image.id} index={index}>
-                  {(provided) => (
-                    <div
-                      className="relative group"
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <img
-                        src={image.url}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded-lg border"
-                      />
-                      <button
-                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleRemoveImage(image.id)}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+      {/* Mission and Vision Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+              <p className="text-gray-600">
+                To provide exceptional real estate services that exceed our clients' expectations. We strive to make the process of buying, selling, or renting property as seamless and stress-free as possible.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold mb-4">Our Vision</h2>
+              <p className="text-gray-600">
+                To be the leading real estate agency known for integrity, innovation, and unparalleled customer service in every community we serve.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {provided.placeholder}
+      {/* Services Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Property Sales</h3>
+              <p className="text-gray-600">
+                Expert guidance in buying and selling residential and commercial properties with competitive market analysis.
+              </p>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Property Management</h3>
+              <p className="text-gray-600">
+                Comprehensive property management services including tenant screening, rent collection, and maintenance coordination.
+              </p>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Real Estate Consulting</h3>
+              <p className="text-gray-600">
+                Professional consulting services for investment analysis, market trends, and strategic property decisions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Upload Button */}
-              <div className="flex items-center justify-center">
-                <label
-                  htmlFor="fileInput"
-                  className="group flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-100 transition-colors cursor-pointer "
-                >
-                  <div className="h-52 w-full flex items-center justify-center">
-                    <IoIosImages className="text-6xl text-gray-400 group-hover:text-gray-600 transition-colors" />
-                  </div>
-                  <p className="text-gray-500 group-hover:text-gray-700">
-                    Upload your photos
-                  </p>
-                </label>
-                <input
-                  id="fileInput"
-                  type="file"
-                  multiple
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                />
+      {/* Why Choose Us Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose DreamHome Realty?</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">10+</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Years of Experience</h3>
+              <p className="text-gray-600">Over a decade of helping clients find their dream homes.</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">500+</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Properties Sold</h3>
+              <p className="text-gray-600">Successfully closed over 500 property transactions.</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">24/7</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Customer Support</h3>
+              <p className="text-gray-600">Round-the-clock support for all your real estate needs.</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">98%</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Client Satisfaction</h3>
+              <p className="text-gray-600">98% of our clients would recommend us to others.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <img
+                src="https://via.placeholder.com/150"
+                alt="Team Member"
+                className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+              />
+              <h3 className="text-xl font-semibold mb-2">Himanshu Devaiya</h3>
+              <p className="text-blue-600 mb-4">Founder & CEO</p>
+              <p className="text-gray-600">
+                With over 10 years in real estate, Himanshu leads our team with expertise and dedication to client success.
+              </p>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <img
+                src="https://via.placeholder.com/150"
+                alt="Team Member"
+                className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+              />
+              <h3 className="text-xl font-semibold mb-2">Sarah Johnson</h3>
+              <p className="text-blue-600 mb-4">Senior Real Estate Agent</p>
+              <p className="text-gray-600">
+                Sarah specializes in luxury properties and has helped hundreds of clients find their perfect homes.
+              </p>
+            </div>
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <img
+                src="https://via.placeholder.com/150"
+                alt="Team Member"
+                className="w-32 h-32 rounded-full mx-auto mb-6 object-cover"
+              />
+              <h3 className="text-xl font-semibold mb-2">Michael Chen</h3>
+              <p className="text-blue-600 mb-4">Property Manager</p>
+              <p className="text-gray-600">
+                Michael ensures our rental properties are well-maintained and tenants are satisfied.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-8">Get in Touch</h2>
+            <p className="text-xl text-gray-600 mb-12">
+              Ready to find your dream home? Contact us today and let's start your real estate journey.
+            </p>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Email</h3>
+                <p className="text-gray-600">support@keyhaven.com</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Phone</h3>
+                <p className="text-gray-600">+91 9876543210</p>
+              </div>
+              <div className="text-center">
+                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Address</h3>
+                <p className="text-gray-600">123 Real Estate Ave<br />Dream City, DC 12345</p>
               </div>
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+          </div>
+        </div>
+      </section>
+      <Footer />
     </div>
   );
-
-  // return <div>Hello</div>;
 };
 
 export default About;

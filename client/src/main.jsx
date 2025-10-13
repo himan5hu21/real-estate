@@ -19,6 +19,7 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import MyProperty from "./pages/MyProperty.jsx";
 import EditProperty from "./components/EditProperty.jsx";
 import PropertyDetails from "./pages/PropertyDetails.jsx";
+import FavoriteProperties from "./pages/FavoriteProperties.jsx";
 
 const router = createBrowserRouter(
   [
@@ -69,6 +70,14 @@ const router = createBrowserRouter(
           element: (
             <PrivateRoute>
               <MyProperty />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/favoriteProperties",
+          element: (
+            <PrivateRoute>
+              <FavoriteProperties />
             </PrivateRoute>
           ),
         },

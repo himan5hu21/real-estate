@@ -1,21 +1,32 @@
 import logo from "../assets/images/logo.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import ProfileDropDown from "./ProfileDropDown";
 import { FaSearch } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMenu } from "../store/menu/menuSlice";
 import useMobileScreen from "../hooks/useMobileScreen";
 import classNames from "classnames";
+import { useState } from "react";
 
 const Header = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.menu.isOpen);
   const isMobile = useMobileScreen();
   const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleToggleMenu = () => {
     if (isMobile) {
       dispatch(toggleMenu());
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/properties?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm("");
     }
   };
 
@@ -130,13 +141,17 @@ const Header = () => {
 
           <div className="flex-1 flex items-center justify-end space-x-2 sm:space-x-6">
             {/* Search Input */}
-            <form className="flex items-center space-x-2 border bg-white rounded-md p-2 hover:border-sky-700 focus-within:border-sky-700">
+            <form onSubmit={handleSearch} className="flex items-center space-x-2 border bg-white rounded-md p-2 hover:border-sky-700 focus-within:border-sky-700">
               <input
                 className="w-full mx-2 bg-transparent outline-none appearance-none placeholder-gray-500 text-gray-500 sm:w-auto"
                 type="text"
-                placeholder="Search"
+                placeholder="Search properties..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <FaSearch className="px-2 w-10 cursor-pointer hover:text-sky-700" />
+              <button type="submit" className="px-2 w-10 cursor-pointer hover:text-sky-700 transition-colors">
+                <FaSearch />
+              </button>
             </form>
 
             {/* Profile Dropdown */}

@@ -7,34 +7,31 @@ function Features() {
     <section className="mx-10 py-12">
       {/* Title */}
       <div className="text-center pb-16">
-        <h6 className="capitalize">Few Steps to your new home</h6>
+        <h6 className="capitalize text-sky-600 font-medium mb-2">Simple Steps to Success</h6>
         <h2 className="text-3xl font-bold capitalize">
-          This is how easy it can be
+          Your Journey to the Perfect Property
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-        <div className="bg-white p-4 rounded-3xl shadow-lg">
-          <MdOutlineQuestionAnswer className="text-3xl font-bold mb-3 text-sky-600" />
-          <h4 className="text-lg font-semibold">Answer Questions</h4>
-          <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Qui
-            repudiandae ad soluta vitae minima natus.
+        <div className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <MdOutlineQuestionAnswer className="text-4xl mb-4 text-sky-600" />
+          <h4 className="text-xl font-semibold mb-3">Get Expert Consultation</h4>
+          <p className="text-gray-600 leading-relaxed">
+            Connect with our experienced real estate professionals who understand your unique needs and guide you through every step of your property journey.
           </p>
         </div>
-        <div className="bg-white p-4 rounded-3xl shadow-lg">
-          <BiSelectMultiple className="text-3xl font-bold mb-3 text-yellow-500" />
-          <h4 className="text-lg font-semibold">Select Property</h4>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis
-            in nam voluptatem ullam, alias culpa!
+        <div className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <BiSelectMultiple className="text-4xl mb-4 text-emerald-600" />
+          <h4 className="text-xl font-semibold mb-3">Browse Premium Properties</h4>
+          <p className="text-gray-600 leading-relaxed">
+            Explore our curated collection of verified properties with detailed information, high-quality photos, and virtual tours to help you make informed decisions.
           </p>
         </div>
-        <div className="bg-white p-4 rounded-3xl shadow-lg">
-          <GrCertificate className="text-3xl font-bold mb-3 text-red-500" />
-          <h4 className="text-lg font-semibold">Enjoy Living</h4>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur
-            similique consequuntur quam, nobis voluptatibus optio?
+        <div className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <GrCertificate className="text-4xl mb-4 text-amber-600" />
+          <h4 className="text-xl font-semibold mb-3">Secure Your Dream Home</h4>
+          <p className="text-gray-600 leading-relaxed">
+            Complete your property transaction with confidence through our transparent process, legal assistance, and dedicated support until you get the keys.
           </p>
         </div>
       </div>

@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import About from "../components/About";
-import Features from "../components/Features";
-import Footer from "../components/Footer";
 import Hero from "../components/Hero";
+import Features from "../components/Features";
 import Listings from "../components/Listings";
+import About from "../components/About";
+import Testimonials from "../components/Testimonials";
+import Footer from "../components/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { checkTokenExpiry, signOutSuccess } from "../store/user/userSlice";
 import { isTokenExpired } from "../utils/auth";
@@ -28,6 +29,7 @@ const Home = () => {
       <Hero />
       <Features />
       <Listings />
+      <Testimonials />
       <About />
       <Footer />
     </>
