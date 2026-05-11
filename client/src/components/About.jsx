@@ -94,7 +94,7 @@ function About() {
                 It Can Be
               </h2>
               <p className="text-lg text-slate-600 leading-relaxed">
-                We've streamlined the entire property journey to make finding 
+                We&apos;ve streamlined the entire property journey to make finding 
                 your perfect home as simple as possible.
               </p>
             </div>
