@@ -1,6 +1,6 @@
 import { BsCheck2Circle } from "react-icons/bs";
 import { HiOutlineArrowRight } from "react-icons/hi";
-import aboutImg from "../assets/images/aboutimage1.jpg";
+import aboutImg from "../assets/images/aboutImage1.jpg";
 
 function About() {
   const benefits = [
