@@ -6,10 +6,12 @@ import authRouter from "./routes/auth.route.js";
 import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -50,6 +52,15 @@ app.use((err, req, res, next) => {
     message,
   });
 });
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// Handle any requests that don't match the API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+});
+
 
 // Start the server and connect to the database
 const startServer = async () => {
