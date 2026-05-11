@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username is required"],
       unique: true,
-      match: [/^[a-zA-Z0-9_]{3,16}$/, "Please fill a valid username"],
+      // match: [/^[a-zA-Z0-9_]{3,16}$/, "Please fill a valid username"],
     },
     email: {
       type: String,

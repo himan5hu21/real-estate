@@ -18,8 +18,9 @@ export const updateUser = async (req, res, next) => {
   try {
     const updates = { ...req.body };
 
+    // You can also explicitly forbid it
     if (updates.password) {
-      updates.password = bcryptjs.hashSync(req.body.password, 10);
+      return next(errorHandler(400, "Use the 'change password' route to update your password."));
     }
 
     const allowedUpdates = [
@@ -144,12 +145,11 @@ export const updateUserPassword = async (req, res, next) => {
     user.password = bcryptjs.hashSync(newPassword, 10);
     await user.save();
 
-    const userData = { ...user._doc };
-    delete userData.password;
+    const { password: _, ...userWithoutPassword } = user._doc;
 
     res.status(200).json({
       success: true,
-      user: userData,
+      user: userWithoutPassword,
     });
   } catch (error) {
     next(error);

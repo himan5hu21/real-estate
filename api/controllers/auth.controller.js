@@ -44,12 +44,14 @@ export const signin = async (req, res, next) => {
       expiresIn: "1d",
     });
 
+    const { password: _, ...userWithoutPassword } = user._doc;
+
     res
       .cookie("access_token", token, { httpOnly: true })
       .status(200)
       .json({
         success: true,
-        user: { ...user._doc, password: undefined },
+        user: userWithoutPassword,
         token,
       });
   } catch (error) {
@@ -67,10 +69,11 @@ export const google = async (req, res, next) => {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: "1d",
       });
-      res
+      const { password: _, ...userWithoutPassword } = user._doc;
+      return res
         .cookie("access_token", token, { httpOnly: true })
         .status(200)
-        .json({ success: true, user: { ...user._doc, password: undefined } });
+        .json({ success: true, user: userWithoutPassword, token });
     }
     const generatedPassword =
       Math.random().toString(36).slice(-8) +
@@ -90,10 +93,11 @@ export const google = async (req, res, next) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
+    const { password: _, ...userWithoutPassword } = newUser._doc;
     res
       .cookie("access_token", token, { httpOnly: true })
       .status(200)
-      .json({ success: true, user: { ...newUser._doc, password: undefined } });
+      .json({ success: true, user: userWithoutPassword, token });
   } catch (error) {
     next(error);
   }
@@ -106,6 +110,6 @@ export const signOut = (req, res, next) => {
       .status(200)
       .json({ success: true, message: "User has been logged out!" });
   } catch (err) {
-    next(error);
+    next(err);
   }
 };

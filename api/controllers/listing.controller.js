@@ -1,10 +1,41 @@
 import Listing from "../models/listing.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
+import fs from "fs";
+import path from "path";
 
 export const createListing = async (req, res, next) => {
   try {
-    const listing = await Listing.create(req.body);
+    let listingData = { ...req.body };
+    
+    // Handle FormData stringified objects if necessary
+    if (typeof listingData.address === "string") {
+      listingData.address = JSON.parse(listingData.address);
+    }
+    if (typeof listingData.features === "string") {
+      listingData.features = JSON.parse(listingData.features);
+    }
+
+    // Process images in order
+    const newUrls = req.files 
+      ? req.files.map(file => `${process.env.BACKEND_URL}/uploads/${file.filename}`) 
+      : [];
+
+    if (listingData.imageUrls) {
+      const order = typeof listingData.imageUrls === 'string' ? JSON.parse(listingData.imageUrls) : listingData.imageUrls;
+      listingData.imageUrls = order.map(item => {
+        if (typeof item === 'string' && item.startsWith('__NEW_FILE_')) {
+          const index = parseInt(item.replace('__NEW_FILE_', '').replace('__', ''));
+          return newUrls[index];
+        }
+        return item;
+      }).filter(url => url !== undefined);
+    } else {
+      listingData.imageUrls = newUrls;
+    }
+    listingData.userRef = req.user.id;
+
+    const listing = await Listing.create(listingData);
     return res.status(201).json({
       success: true,
       message: "Listing created successfully",
@@ -25,12 +56,19 @@ export const deleteListing = async (req, res, next) => {
       return next(errorHandler(401, "You can only delete your own listings!"));
     }
 
-    const deletedListing = await Listing.findByIdAndDelete(req.params.id);
+    // Delete images from disk
+    if (listing.imageUrls && listing.imageUrls.length > 0) {
+      listing.imageUrls.forEach((url) => {
+        // Extract the path from the full URL
+        const relativePath = url.replace(process.env.BACKEND_URL, "");
+        const filePath = path.join(path.resolve(), relativePath);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      });
+    }
 
-    if (!deletedListing)
-      return next(
-        errorHandler(500, "Failed to delete listing. Please try again.")
-      );
+    await Listing.findByIdAndDelete(req.params.id);
 
     return res
       .status(200)
@@ -42,17 +80,63 @@ export const deleteListing = async (req, res, next) => {
 
 export const updateListing = async (req, res, next) => {
   try {
-    const listingId = req.params.id;
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+      return next(errorHandler(404, "Listing not found!"));
+    }
+
+    if (req.user.id !== listing.userRef.toString()) {
+      return next(errorHandler(401, "You can only update your own listings!"));
+    }
+
+    let updateData = { ...req.body };
+
+    // Handle FormData stringified objects
+    if (typeof updateData.address === "string") {
+      updateData.address = JSON.parse(updateData.address);
+    }
+    if (typeof updateData.features === "string") {
+      updateData.features = JSON.parse(updateData.features);
+    }
+
+    // Handle images
+    const newUrls = req.files 
+      ? req.files.map(file => `${process.env.BACKEND_URL}/uploads/${file.filename}`) 
+      : [];
+
+    let finalImageUrls = [];
+    if (updateData.imageUrls) {
+      const order = typeof updateData.imageUrls === 'string' ? JSON.parse(updateData.imageUrls) : updateData.imageUrls;
+      
+      finalImageUrls = order.map(item => {
+        if (typeof item === 'string' && item.startsWith('__NEW_FILE_')) {
+          const index = parseInt(item.replace('__NEW_FILE_', '').replace('__', ''));
+          return newUrls[index];
+        }
+        return item; // It's an existing URL
+      }).filter(url => url !== undefined);
+    } else {
+      // Fallback
+      finalImageUrls = newUrls;
+    }
+    updateData.imageUrls = finalImageUrls;
+
+    // Cleanup deleted images from disk
+    const imagesToDelete = listing.imageUrls.filter(url => !updateData.imageUrls.includes(url));
+    imagesToDelete.forEach((url) => {
+      const relativePath = url.replace(process.env.BACKEND_URL, "");
+      const filePath = path.join(path.resolve(), relativePath);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
 
     const updatedListing = await Listing.findByIdAndUpdate(
-      listingId,
-      { $set: req.body },
+      req.params.id,
+      { $set: updateData },
       { new: true }
     );
-
-    if (!updatedListing) {
-      return next(errorHandler(404, "Property not found"));
-    }
 
     res.status(200).json({
       success: true,
@@ -170,7 +254,6 @@ export const getSingleListing = async (req, res, next) => {
       listing,
     });
   } catch (err) {
-    console.error("Error fetching listing:", err.message);
     next(err);
   }
 };

@@ -5,16 +5,17 @@ import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 dotenv.config();
+
+const __dirname = path.resolve();
 
 // Connect to MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO);
-    console.log("Connected to MongoDB");
   } catch (err) {
-    console.error("MongoDB connection error:", err);
     process.exit(1); // Exit the process with failure
   }
 };
@@ -23,6 +24,8 @@ const connectDB = async () => {
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 // Register routes
 app.use("/api/user", userRouter);
@@ -51,8 +54,9 @@ app.use((err, req, res, next) => {
 // Start the server and connect to the database
 const startServer = async () => {
   await connectDB();
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
   });
 };
 

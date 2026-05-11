@@ -1,11 +1,12 @@
 import axios from "axios";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
+import { HiOutlineMail, HiOutlinePhone, HiUser } from "react-icons/hi";
 
 const OwnerContactCard = ({ ownerId }) => {
   const [ownerDetails, setOwnerDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -13,7 +14,8 @@ const OwnerContactCard = ({ ownerId }) => {
         const res = await axios.get(`/api/listing/owner/${ownerId}`);
         setOwnerDetails(res.data.owner);
       } catch (err) {
-        console.error("Error fetching property details:", err);
+        console.error("Error fetching owner details:", err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -23,42 +25,76 @@ const OwnerContactCard = ({ ownerId }) => {
 
   if (loading)
     return (
-      <p className="mt-6 text-gray-500 italic">Loading owner details...</p>
+      <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl animate-pulse">
+        <div className="w-12 h-12 bg-slate-200 rounded-full"></div>
+        <div className="space-y-2 flex-1">
+          <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+          <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+        </div>
+      </div>
     );
 
-  if (!ownerDetails)
-    return <p className="mt-6 text-red-500">Failed to load owner info.</p>;
-
-  console.log(ownerDetails);
+  if (error || !ownerDetails)
+    return (
+      <div className="p-4 bg-rose-50 text-rose-600 rounded-2xl text-sm font-medium text-center border border-rose-100">
+        Unable to load owner information.
+      </div>
+    );
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 mt-10 border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-        Listed by Owner
-      </h3>
-
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-14 h-14 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 text-xl font-bold">
-          {ownerDetails.name?.[0]?.toUpperCase() || "U"}
-        </div>
-        <div>
-          <div className="flex items-baseline gap-1 text-md font-medium text-gray-800">
-            <FaUser className="text-sky-700" />
-            {ownerDetails.name}
+    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 transition-all duration-300">
+      <div className="flex items-center gap-4 mb-5">
+        {/* Avatar / Initial */}
+        {ownerDetails.avatar ? (
+          <img 
+            src={ownerDetails.avatar} 
+            alt={ownerDetails.name} 
+            className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center text-white text-xl font-bold shadow-sm border-2 border-white">
+            {ownerDetails.name?.[0]?.toUpperCase() || <HiUser />}
           </div>
-          <div className="text-sm text-gray-500">Property Owner</div>
+        )}
+        
+        {/* Name & Role */}
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 leading-tight">
+            {ownerDetails.name || "Property Owner"}
+          </h3>
+          <p className="text-xs font-semibold text-sky-600 uppercase tracking-wide mt-0.5">
+            Verified Owner
+          </p>
         </div>
       </div>
 
-      <div className="space-y-3 mt-2 text-sm text-gray-700">
-        <div className="flex items-center gap-2">
-          <FaEnvelope className="text-sky-600" />
-          <span>{ownerDetails.email}</span>
+      {/* Contact Details */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm group hover:border-sky-200 transition-colors">
+          <div className="p-2 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-sky-100 transition-colors">
+            <HiOutlineMail className="text-lg" />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-0.5">Email</p>
+            <a href={`mailto:${ownerDetails.email}`} className="text-sm font-semibold text-slate-700 hover:text-sky-600 truncate block transition-colors">
+              {ownerDetails.email}
+            </a>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FaPhone className="text-sky-600" />
-          <span>{ownerDetails.phone}</span>
-        </div>
+
+        {ownerDetails.phone && (
+          <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm group hover:border-sky-200 transition-colors">
+            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-100 transition-colors">
+              <HiOutlinePhone className="text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-0.5">Phone</p>
+              <a href={`tel:${ownerDetails.phone}`} className="text-sm font-semibold text-slate-700 hover:text-emerald-600 transition-colors">
+                {ownerDetails.phone}
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

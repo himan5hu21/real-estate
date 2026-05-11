@@ -1,25 +1,30 @@
-import logo from "../assets/images/logo.png";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import ProfileDropDown from "./ProfileDropDown";
-import { FaSearch } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMenu } from "../store/menu/menuSlice";
 import useMobileScreen from "../hooks/useMobileScreen";
 import classNames from "classnames";
-import { useState } from "react";
+import ProfileDropDown from "./ProfileDropDown";
+import { HiOutlineSearch, HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 
 const Header = () => {
   const dispatch = useDispatch();
   const isOpen = useSelector((state) => state.menu.isOpen);
   const isMobile = useMobileScreen();
-  const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleToggleMenu = () => {
-    if (isMobile) {
-      dispatch(toggleMenu());
-    }
+    if (isMobile) dispatch(toggleMenu());
   };
 
   const handleSearch = (e) => {
@@ -35,169 +40,146 @@ const Header = () => {
     { title: "Properties", path: "/properties" },
     { title: "About", path: "/about" },
   ];
-  return (
-    <nav className="bg-slate-200 shadow-md border-b">
-      {/* Header */}
-      <div className="flex items-center space-x-8 py-3 px-4 max-w-screen-xl mx-auto md:px-8">
-        {/* Logo */}
-        <div className="flex-none md:flex-initial">
-          <NavLink
-            to="/"
-            className={({ isActive, isPending }) =>
-              `nav-link flex items-center gap-3 text-2xl font-semibold ${
-                isActive ? "text-sky-700" : isPending ? "text-gray-600" : ""
-              }`
-            }
-          >
-            <img src={logo} alt="Float UI logo" className="w-16 sm:w-20" />
-            <h1 className="font-bold text-sm sm:text-xl flex flex-wrap">
-              <span className="text-sky-700">Key</span>
-              <span className="text-slate-700">Haven</span>
-            </h1>
-          </NavLink>
-        </div>
 
-        <div className="flex-1 flex items-center justify-between">
-          {/* Mobile Menu Close Button */}
-          <div
-            className={classNames(
-              "bg-slate-200 z-20 p-4 border-l border-gray-400 transition-transform",
-              {
-                "fixed top-0 right-0 w-3/4 sm:w-1/2 h-full z-50": isMobile,
-                "absolute w-full top-16 left-0 border-b md:static md:block md:border-none":
-                  !isMobile,
-                "translate-x-0": isOpen,
-                "translate-x-full": !isOpen && isMobile,
-                hidden: !isOpen && !isMobile,
-              }
-            )}
-          >
-            <div className="flex justify-end md:hidden">
-              <button
-                onClick={handleToggleMenu}
-                className="outline-none text-gray-400 block hover:text-sky-600"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+  return (
+    <>
+      <nav
+        className={classNames(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
+          {
+            "bg-white/80 backdrop-blur-md border-slate-200/50 shadow-sm py-3": isScrolled,
+            "bg-transparent border-transparent py-5": !isScrolled,
+          }
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* Logo Section */}
+            <NavLink to="/" className="flex items-center gap-2 group">
+              <div className="bg-gradient-to-br from-sky-600 to-cyan-600 text-white p-2 rounded-xl shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform duration-300">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-              </button>
+              </div>
+              <span className="text-xl font-bold tracking-tight text-slate-900">
+                Key<span className="bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">Haven</span>
+              </span>
+            </NavLink>
+
+            {/* Desktop Center Navigation */}
+            <div className="hidden md:flex items-center gap-1 bg-white/50 backdrop-blur-sm px-2 py-1.5 rounded-full border border-slate-200/50">
+              {navigation.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    classNames(
+                      "px-5 py-2 rounded-full text-sm font-medium transition-all duration-300",
+                      {
+                        "bg-slate-900 text-white shadow-md": isActive,
+                        "text-slate-600 hover:text-slate-900 hover:bg-slate-100": !isActive,
+                      }
+                    )
+                  }
+                >
+                  {item.title}
+                </NavLink>
+              ))}
             </div>
 
-            {/* Navigation List */}
-            {currentUser && (
-              <ProfileDropDown class="mb-5 pb-5 border-b border-gray-400 md:hidden" />
-            )}
+            {/* Right Section */}
+            <div className="flex items-center gap-3">
+              {/* Desktop Search */}
+              <form
+                onSubmit={handleSearch}
+                className="hidden lg:flex items-center bg-white border border-slate-200 rounded-full pl-4 pr-1.5 py-1.5 focus-within:ring-2 focus-within:ring-sky-500/20 focus-within:border-sky-500 transition-all duration-300 w-64 shadow-sm"
+              >
+                <input
+                  type="text"
+                  placeholder="Search properties..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-transparent border-none outline-none text-sm w-full text-slate-700 placeholder:text-slate-400"
+                />
+                <button type="submit" className="bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-colors">
+                   <HiOutlineSearch className="w-4 h-4" />
+                </button>
+              </form>
 
-            <ul className="mt-6 space-y-0 md:flex md:space-x-6 md:mt-0  ">
-              {navigation.map((item, idx) => (
-                <li
-                  key={idx}
-                  className={isMobile ? "" : "text-gray-600 hover:text-sky-600"}
-                >
-                  <NavLink
-                    to={item.path}
-                    className={({ isActive, isPending }) =>
-                      classNames("nav-link transition-colors duration-300", {
-                        "block px-4 py-2 rounded-md hover:text-white": isMobile,
-                        "hover:bg-gray-400": !isActive && isMobile,
-                        "text-gray-600": !isActive && !isPending,
-                        "bg-sky-700 text-white": isActive && isMobile,
-                        "text-sky-700 font-medium border-b-2 border-sky-700":
-                          isActive && !isMobile,
-                        "md:hover:text-sky-600": !isActive && !isMobile,
-                      })
-                    }
-                    onClick={handleToggleMenu}
-                  >
-                    {item.title}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-
-            {!currentUser && (
-              <ProfileDropDown class="mt-5 pt-5 border-t border-gray-400 md:hidden" />
-            )}
-          </div>
-
-          {/* Navigation Open Button */}
-          <div
-            className={`fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10 transition-all duration-500 ${
-              isOpen ? "block" : "hidden"
-            }`}
-            onClick={handleToggleMenu}
-          ></div>
-
-          <div className="flex-1 flex items-center justify-end space-x-2 sm:space-x-6">
-            {/* Search Input */}
-            <form onSubmit={handleSearch} className="flex items-center space-x-2 border bg-white rounded-md p-2 hover:border-sky-700 focus-within:border-sky-700">
-              <input
-                className="w-full mx-2 bg-transparent outline-none appearance-none placeholder-gray-500 text-gray-500 sm:w-auto"
-                type="text"
-                placeholder="Search properties..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button type="submit" className="px-2 w-10 cursor-pointer hover:text-sky-700 transition-colors">
-                <FaSearch />
+              {/* Search Toggle Mobile */}
+              <button
+                onClick={() => navigate('/properties')}
+                className="lg:hidden text-slate-600 p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <HiOutlineSearch className="w-6 h-6" />
               </button>
-            </form>
 
-            {/* Profile Dropdown */}
-            <ProfileDropDown class="hidden md:block" />
+              {/* Profile Dropdown (Desktop) */}
+              <div className="hidden md:block pl-3 ml-1 border-l border-slate-200">
+                <ProfileDropDown />
+              </div>
 
-            {/* Mobile Menu Open Button */}
-            <button
-              className="outline-none text-gray-400 hover:text-sky-600 block md:hidden"
-              onClick={handleToggleMenu}
-            >
-              {isOpen ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16m-7 6h7"
-                  />
-                </svg>
-              )}
-            </button>
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={handleToggleMenu}
+                className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                {isOpen ? <HiOutlineX className="w-6 h-6" /> : <HiOutlineMenu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+      </nav>
+
+      {/* Mobile Menu Drawer */}
+      <div
+        className={classNames(
+          "fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          { "opacity-100": isOpen, "opacity-0 pointer-events-none": !isOpen }
+        )}
+        onClick={handleToggleMenu}
+      />
+      
+      <div
+        className={classNames(
+          "fixed top-0 right-0 z-50 h-full w-[85%] max-w-sm bg-white shadow-2xl transition-transform duration-300 ease-out md:hidden flex flex-col",
+          { "translate-x-0": isOpen, "translate-x-full": !isOpen }
+        )}
+      >
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <span className="font-bold text-xl text-slate-900">Menu</span>
+          <button onClick={handleToggleMenu} className="p-2 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 shadow-sm">
+            <HiOutlineX className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-2">
+          {navigation.map((item) => (
+             <NavLink
+               key={item.path}
+               to={item.path}
+               onClick={handleToggleMenu}
+               className={({ isActive }) => classNames(
+                 "block px-5 py-4 rounded-2xl text-base font-medium transition-all duration-200 border",
+                 {
+                   "bg-slate-900 text-white border-slate-900 shadow-md": isActive,
+                   "bg-white text-slate-600 border-slate-100 hover:border-slate-300 hover:text-slate-900": !isActive
+                 }
+               )}
+             >
+               {item.title}
+             </NavLink>
+          ))}
+        </div>
+
+        <div className="mt-auto p-6 border-t border-slate-100 bg-slate-50/50">
+          <ProfileDropDown class="w-full" />
+        </div>
       </div>
-    </nav>
+      
+      {/* Spacing for fixed header */}
+      <div className={classNames("transition-all duration-300", { "h-20": isScrolled, "h-24": !isScrolled })} />
+    </>
   );
 };
 

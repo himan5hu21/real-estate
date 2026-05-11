@@ -3,23 +3,24 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./store/store.js";
+
+// Components & Pages
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
+import Error from "./pages/Error.jsx";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
-import Error from "./pages/Error.jsx";
-import { persistor, store } from "./store/store.js";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import PrivateRoute from "./components/PrivateRoute.jsx";
 import Properties from "./pages/Properties.jsx";
-import AddProperty from "./pages/AddProperties.jsx";
-import ScrollToTop from "./components/ScrollToTop.jsx";
 import MyProperty from "./pages/MyProperty.jsx";
-import EditProperty from "./components/EditProperty.jsx";
 import PropertyDetails from "./pages/PropertyDetails.jsx";
 import FavoriteProperties from "./pages/FavoriteProperties.jsx";
+import PropertyForm from "./pages/AddProperties.jsx";
 
 const router = createBrowserRouter(
   [
@@ -27,7 +28,7 @@ const router = createBrowserRouter(
       path: "/",
       element: (
         <>
-          <ScrollToTop /> {/* Add ScrollToTop component here */}
+          <ScrollToTop />
           <App />
         </>
       ),
@@ -38,6 +39,18 @@ const router = createBrowserRouter(
           element: <Home />,
         },
         {
+          path: "/sign-in",
+          element: <SignIn />,
+        },
+        {
+          path: "/sign-up",
+          element: <SignUp />,
+        },
+        {
+          path: "/about",
+          element: <About />,
+        },
+        {
           path: "/properties",
           element: <Properties />,
         },
@@ -45,23 +58,28 @@ const router = createBrowserRouter(
           path: "/property/:id",
           element: <PropertyDetails />,
         },
-        {
-          path: "/addProperty",
-          element: (
-            <PrivateRoute>
-              <AddProperty />
-            </PrivateRoute>
-          ),
-        },
-        {
-          path: "/about",
-          element: <About />,
-        },
+        // --- Protected Routes ---
         {
           path: "/profile",
           element: (
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/addProperty",
+          element: (
+            <PrivateRoute>
+              <PropertyForm />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/editProperty/:id", // Matches the navigate URL from MyProperty.jsx
+          element: (
+            <PrivateRoute>
+              <PropertyForm />
             </PrivateRoute>
           ),
         },
@@ -80,22 +98,6 @@ const router = createBrowserRouter(
               <FavoriteProperties />
             </PrivateRoute>
           ),
-        },
-        {
-          path: "/edit-property/:id",
-          element: (
-            <PrivateRoute>
-              <EditProperty />
-            </PrivateRoute>
-          ),
-        },
-        {
-          path: "/sign-in",
-          element: <SignIn />,
-        },
-        {
-          path: "/sign-up",
-          element: <SignUp />,
         },
       ],
     },
@@ -127,7 +129,6 @@ createRoot(document.getElementById("root")).render(
             v7_skipActionErrorRevalidation: true,
           }}
         />
-        {/* <App /> */}
       </PersistGate>
     </Provider>
   </StrictMode>

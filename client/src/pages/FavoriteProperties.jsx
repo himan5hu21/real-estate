@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { FaHeart, FaExclamationTriangle, FaRedo, FaSearch } from "react-icons/fa";
+import { 
+  HiOutlineHeart, 
+  HiOutlineSearch, 
+  HiOutlineTrash, 
+  HiOutlineCollection,
+  HiOutlineExclamation 
+} from "react-icons/hi";
+import { FaHeart } from "react-icons/fa"; // Keep filled heart for visual
 import PropertyCard from "../components/PropertyCard";
 import axios from "axios";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const FavoriteProperties = () => {
   const { currentUser, token } = useSelector((state) => state.user);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchFavorites = async () => {
     if (!currentUser || !token) {
@@ -50,6 +58,8 @@ const FavoriteProperties = () => {
   };
 
   const handleRemoveFromFavorites = async (propertyId) => {
+    if(!confirm("Remove this property from your favorites?")) return;
+
     try {
       await axios.delete(`/api/listing/favorites/${propertyId}`, {
         headers: {
@@ -57,7 +67,6 @@ const FavoriteProperties = () => {
         },
       });
 
-      // Remove the property from local state
       setFavorites(prev => prev.filter(property => property._id !== propertyId));
     } catch (error) {
       console.error("Error removing from favorites:", error);
@@ -67,144 +76,135 @@ const FavoriteProperties = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="h-12 bg-gray-300 rounded w-64 mb-4 animate-pulse"></div>
-            <div className="h-6 bg-gray-300 rounded w-96 animate-pulse"></div>
-          </div>
-
-          {/* Grid Skeleton */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 shadow-lg rounded-xl animate-pulse">
-                <div className="w-full h-48 bg-gray-300 rounded-t-xl"></div>
-                <div className="p-6 space-y-4">
-                  <div className="w-3/4 h-6 bg-gray-300 rounded"></div>
-                  <div className="w-1/2 h-4 bg-gray-300 rounded"></div>
-                  <div className="flex gap-2">
-                    <div className="w-20 h-6 bg-gray-300 rounded-full"></div>
-                    <div className="w-16 h-6 bg-gray-300 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-200 border-t-sky-600 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Favorite Properties</h1>
-            <p className="text-gray-600">Properties you've liked</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100">
+          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <HiOutlineExclamation className="text-rose-500 text-3xl" />
           </div>
-
-          {/* Error State */}
-          <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
-            <FaExclamationTriangle className="mx-auto mb-4 text-5xl text-red-500" />
-            <h2 className="mb-4 text-2xl font-semibold text-gray-800">Oops!</h2>
-            <p className="mb-6 text-gray-600">{error}</p>
-            <button
-              onClick={handleRetry}
-              className="flex items-center justify-center gap-2 px-6 py-3 mx-auto text-white transition rounded-lg bg-sky-700 hover:bg-sky-600 w-full"
-            >
-              <FaRedo /> Try Again
-            </button>
-          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Access Error</h2>
+          <p className="text-slate-500 mb-6">{error}</p>
+          <button
+            onClick={handleRetry}
+            className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 transition-all"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-sky-600 to-sky-800 text-white py-16 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Favorite Properties
-          </h1>
-          <p className="text-xl text-sky-100 max-w-2xl mx-auto mb-8">
-            Your saved properties - easily access and manage the homes you've loved
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/properties"
-              className="bg-white text-sky-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+    <div className="min-h-screen bg-slate-50 font-sans">
+      
+      {/* 1. DASHBOARD HEADER (Matched MyProperty.jsx) */}
+      <div className="bg-white border-b border-slate-200 pt-8 pb-8 px-4 shadow-sm relative z-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            
+            {/* Title Section */}
+            <div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-rose-500 mb-2 uppercase tracking-wide">
+                <HiOutlineHeart className="w-4 h-4" />
+                <span>Collection</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+                Favorite Properties
+              </h1>
+              <p className="text-slate-500 mt-2 max-w-lg text-lg">
+                Your personal collection of saved homes. Keep track of the properties you love.
+              </p>
+            </div>
+
+            {/* Action Button */}
+            <button
+              onClick={() => navigate("/properties")}
+              className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 shadow-md"
             >
-              <FaSearch /> Browse More Properties
-            </Link>
+              <HiOutlineSearch className="w-5 h-5" /> 
+              Browse More
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      {/* 2. MAIN CONTENT AREA */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-24">
+        
         {favorites.length === 0 ? (
-          <div className="max-w-2xl mx-auto text-center py-16">
-            <div className="mb-8">
-              <FaHeart className="mx-auto mb-6 text-8xl text-gray-300" />
-              <h2 className="mb-4 text-3xl font-semibold text-gray-800">No Favorite Properties</h2>
-              <p className="mb-8 text-lg text-gray-600 max-w-md mx-auto">
-                You haven't liked any properties yet. Start browsing and click the heart icon to save your favorites for easy access later!
-              </p>
+          /* Empty State (Matched MyProperty.jsx) */
+          <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-16 text-center max-w-3xl mx-auto">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <HiOutlineHeart className="w-12 h-12 text-slate-300" />
             </div>
-            <Link
-              to="/properties"
-              className="inline-flex items-center gap-2 px-8 py-4 text-white transition rounded-lg bg-sky-700 hover:bg-sky-600 font-semibold text-lg"
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              No Favorites Yet
+            </h2>
+            <p className="text-slate-500 max-w-md mx-auto mb-8 leading-relaxed">
+              You haven't saved any properties yet. Start browsing and click the heart icon to save your favorites here.
+            </p>
+            <button
+              onClick={() => navigate("/properties")}
+              className="bg-gradient-to-r from-sky-600 to-cyan-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-sky-500/30 hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 mx-auto"
             >
-              <FaSearch /> Browse Properties
-            </Link>
+              <HiOutlineSearch className="w-5 h-5" /> 
+              Explore Properties
+            </button>
           </div>
         ) : (
+          /* Property Grid */
           <>
-            {/* Properties Header */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Your Favorites ({favorites.length} {favorites.length === 1 ? 'property' : 'properties'})
+            <div className="flex items-center gap-3 mb-8 px-1">
+              <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-100">
+                <HiOutlineCollection className="w-5 h-5 text-rose-500" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">
+                Saved Items <span className="text-slate-400 font-medium ml-1">({favorites.length})</span>
               </h2>
-              <p className="text-gray-600">
-                Manage your saved properties - remove them anytime or browse for more options.
-              </p>
             </div>
 
-            {/* Properties Grid */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {favorites.map((property) => (
                 <div key={property._id} className="relative group">
+                  {/* Property Card */}
                   <PropertyCard
                     property={property}
-                    showHeartIcon={false}
+                    showHeartIcon={false} // We provide custom remove button below
                   />
-                  <button
-                    onClick={() => handleRemoveFromFavorites(property._id)}
-                    className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-md transition-colors opacity-0 group-hover:opacity-100"
-                    title="Remove from favorites"
-                    aria-label="Remove from favorites"
-                  >
-                    <FaHeart className="w-4 h-4" />
-                  </button>
+                  
+                  {/* Overlay Actions (Consistent with MyProperty) */}
+                  <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRemoveFromFavorites(property._id);
+                      }}
+                      className="bg-white text-rose-500 p-2.5 rounded-full shadow-lg hover:bg-rose-500 hover:text-white transition-all hover:scale-110 flex items-center justify-center"
+                      title="Remove from favorites"
+                    >
+                      <FaHeart className="w-4 h-4" /> {/* Filled heart to indicate removal */}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Additional Actions */}
-            <div className="mt-12 text-center">
-              <p className="text-gray-600 mb-6">
-                Want to see more options? Browse our full collection of properties.
-              </p>
+            {/* Bottom Link */}
+            <div className="mt-16 text-center border-t border-slate-200 pt-10">
+              <p className="text-slate-500 mb-6 text-lg">Looking for something else?</p>
               <Link
                 to="/properties"
-                className="inline-flex items-center gap-2 px-8 py-3 text-white transition rounded-lg bg-sky-700 hover:bg-sky-600 font-semibold"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md"
               >
-                <FaSearch /> Browse All Properties
+                <HiOutlineSearch /> Browse All Listings
               </Link>
             </div>
           </>

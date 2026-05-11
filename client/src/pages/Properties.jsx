@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
 import CustomSelect from "../components/CustomSelect";
 import axios from "axios";
 import { categories } from "../assets/resources/data";
 import Footer from "../components/Footer";
+import {
+  HiOutlineSearch,
+  HiOutlineFilter,
+  HiOutlineLocationMarker,
+  HiOutlineCurrencyRupee,
+  HiOutlineHome,
+  HiOutlineSortDescending,
+  HiOutlineRefresh
+} from "react-icons/hi";
 
 // Utility functions for number formatting
 const formatNumber = (value) => {
@@ -19,74 +28,124 @@ const parseNumber = (value) => {
   return value.toString().replace(/,/g, "");
 };
 
-// Enhanced number input component with better editing support
+// 1. FIXED INPUT COMPONENT (Removed default black outline)
 const FormattedNumberInput = ({
   value,
   onChange,
   onBlur,
   placeholder,
   label,
-  className = ""
+  icon = null
 }) => {
   const [displayValue, setDisplayValue] = useState(formatNumber(value));
-  const [isEditing, setIsEditing] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
-    // Always show formatted value, but track if user is actively editing
     setDisplayValue(formatNumber(value));
   }, [value]);
 
-  const handleFocus = () => {
-    setIsEditing(true);
-  };
+  const handleFocus = () => setIsFocused(true);
 
   const handleBlur = () => {
-    setIsEditing(false);
+    setIsFocused(false);
     onBlur && onBlur();
   };
 
   const handleChange = (e) => {
     const inputValue = e.target.value;
-    // Allow only numbers and commas for formatted input
     const cleanedValue = inputValue.replace(/[^\d,]/g, '');
-
-    // Parse the cleaned value to get the actual number
     const parsedValue = parseNumber(cleanedValue);
-
-    // Update display to show what user types (with formatting)
     setDisplayValue(formatNumber(parsedValue) || cleanedValue);
-
-    // Update parent state with parsed number
     onChange(parsedValue);
   };
 
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-slate-700 mb-2">
           {label}
         </label>
       )}
-      <input
-        type="text"
-        value={displayValue}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 ${className}`}
-      />
+      <div className="relative">
+        <div className={`
+          flex items-center w-full bg-white border-2 rounded-xl transition-all duration-200
+          ${isFocused
+            ? 'border-sky-500 ring-4 ring-sky-500/10 shadow-lg'
+            : 'border-slate-200 hover:border-slate-300'
+          }
+        `}>
+          {icon && (
+            <span className={`pl-4 flex-shrink-0 ${isFocused ? 'text-sky-500' : 'text-slate-400'}`}>
+              {icon}
+            </span>
+          )}
+          <input
+            type="text"
+            value={displayValue}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            className={`
+              w-full bg-transparent border-none outline-none focus:ring-0 text-slate-900 placeholder:text-slate-400
+              py-3.5 ${icon ? 'pl-3 pr-4' : 'px-4'} rounded-xl
+            `}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 2. FIXED STANDARD INPUT (Removed default black outline)
+const StandardInput = ({ value, onChange, placeholder, label, icon, onBlur }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div>
+      {label && (
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          {label}
+        </label>
+      )}
+      <div className={`
+        flex items-center w-full bg-white border-2 rounded-xl transition-all duration-200
+        ${isFocused
+          ? 'border-sky-500 ring-4 ring-sky-500/10 shadow-lg'
+          : 'border-slate-200 hover:border-slate-300'
+        }
+      `}>
+        {icon && (
+          <span className={`pl-4 flex-shrink-0 ${isFocused ? 'text-sky-500' : 'text-slate-400'}`}>
+            {icon}
+          </span>
+        )}
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            onBlur && onBlur();
+          }}
+          placeholder={placeholder}
+          className={`
+            w-full bg-transparent border-none outline-none focus:ring-0 text-slate-900 placeholder:text-slate-400
+            py-3.5 ${icon ? 'pl-3 pr-4' : 'px-4'} rounded-xl
+          `}
+        />
+      </div>
     </div>
   );
 };
 
 const Properties = () => {
   const [searchParams] = useSearchParams();
-  const [isRenting, setIsRenting] = useState(false);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState(() => searchParams.get("search") || "");
   const [selectedType, setSelectedType] = useState("all");
@@ -104,16 +163,16 @@ const Properties = () => {
   ];
 
   const bedroomOptions = [
-    { value: "", label: "Any" },
-    { value: "1", label: "1+" },
-    { value: "2", label: "2+" },
-    { value: "3", label: "3+" },
-    { value: "4", label: "4+" },
-    { value: "5", label: "5+" }
+    { value: "", label: "Any Bedrooms" },
+    { value: "1", label: "1+ Bedrooms" },
+    { value: "2", label: "2+ Bedrooms" },
+    { value: "3", label: "3+ Bedrooms" },
+    { value: "4", label: "4+ Bedrooms" },
+    { value: "5", label: "5+ Bedrooms" }
   ];
 
   const sortOptions = [
-    { value: "latest", label: "Latest" },
+    { value: "latest", label: "Newest First" },
     { value: "low-to-high", label: "Price: Low to High" },
     { value: "high-to-low", label: "Price: High to Low" }
   ];
@@ -122,51 +181,37 @@ const Properties = () => {
     { value: "", label: "All Categories" },
     ...categories.filter(cat => cat.label !== "All").map(cat => ({ value: cat.label, label: cat.label }))
   ];
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProperties, setTotalProperties] = useState(0);
+  const [savedPropertyIds, setSavedPropertyIds] = useState([]);
 
   const fetchProperties = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "20"
       });
-      
-      // Add filters to params
-      if (selectedType && selectedType !== "all") {
-        params.append("type", selectedType);
-      }
-      if (priceRange.min) {
-        params.append("minprice", priceRange.min);
-      }
-      if (priceRange.max) {
-        params.append("maxprice", priceRange.max);
-      }
-      if (bedrooms) {
-        params.append("bedrooms", bedrooms);
-      }
-      if (city.trim()) {
-        params.append("city", city.trim());
-      }
-      if (category) {
-        params.append("category", category);
-      }
-      if (sortBy) {
-        params.append("sort", sortBy);
-      }
-      
-      const endpoint = searchTerm.trim() 
+
+      if (selectedType && selectedType !== "all") params.append("type", selectedType);
+      if (priceRange.min) params.append("minprice", priceRange.min);
+      if (priceRange.max) params.append("maxprice", priceRange.max);
+      if (bedrooms) params.append("bedrooms", bedrooms);
+      if (city.trim()) params.append("city", city.trim());
+      if (category) params.append("category", category);
+      if (sortBy) params.append("sort", sortBy);
+
+      const endpoint = searchTerm.trim()
         ? `/api/listing/search?keyword=${encodeURIComponent(searchTerm.trim())}&${params}`
         : `/api/listing/list?${params}`;
-      
+
       const res = await axios.get(endpoint);
-      
+
       if (res.data.success) {
         setProperties(res.data.properties || []);
         setTotalProperties(res.data.totalProperties || 0);
@@ -186,30 +231,32 @@ const Properties = () => {
     fetchProperties(1);
   }, [fetchProperties]);
 
-  // Separate useEffect to trigger fetch when filter states change
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (currentPage === 1) { // Only auto-fetch on page 1 to avoid conflicts with pagination
-        fetchProperties(1);
-      }
-    }, 100); // Small delay to ensure state has updated
+    fetchProperties(currentPage);
+  }, [currentPage, fetchProperties]);
 
-    return () => clearTimeout(timeoutId);
-  }, [selectedType, priceRange, bedrooms, city, category, sortBy, searchTerm, fetchProperties, currentPage]);
+  // Add this useEffect to load the user's favorites
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        // Replace this URL with your actual endpoint to get saved listing IDs
+        const res = await axios.get('/api/user/saved-listings');
+        if (res.data.success) {
+          // Assuming the API returns an array of listing IDs strings
+          // e.g., res.data.savedListings = ["65a...", "65b..."]
+          setSavedPropertyIds(res.data.savedListings);
+        }
+      } catch (err) {
+        console.log("Could not fetch favorites", err);
+      }
+    };
+
+    fetchFavorites();
+  }, []); // Empty dependency array = runs once on mount
 
   const handleSearch = (e) => {
     e.preventDefault();
     fetchProperties(1);
-  };
-
-  const handleFilterChange = useCallback(() => {
-    fetchProperties(1);
-  }, [fetchProperties]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      fetchProperties(newPage);
-    }
   };
 
   const resetFilters = () => {
@@ -224,293 +271,249 @@ const Properties = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <header className="bg-gradient-to-r from-sky-600 to-sky-800 text-white py-16 px-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Find Your Dream Property
+    <div className="min-h-screen bg-slate-50 font-sans">
+
+      {/* HEADER BANNER */}
+      <div className="relative bg-gradient-to-r from-sky-600 to-cyan-600 text-white pt-24 pb-32 px-4">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="container mx-auto text-center relative z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 font-display">
+            Find Your <span className="text-sky-200">Perfect Space</span>
           </h1>
-          <p className="text-xl text-sky-100 max-w-2xl mx-auto">
-            Discover amazing properties for sale and rent in your desired location
+          <p className="text-xl text-sky-100 max-w-2xl mx-auto leading-relaxed">
+            Search through thousands of properties for sale and rent across the most desired locations.
           </p>
         </div>
-      </header>
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search Properties
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Enter location, property name, or keywords..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-              />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 pb-20">
+
+        {/* SEARCH & FILTER CONSOLE */}
+        <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-6 md:p-8 mb-12">
+
+          {/* Main Search Bar */}
+          <form onSubmit={handleSearch} className="mb-8">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative group">
+                <StandardInput
+                  placeholder="Search by location, property name, or keywords..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  icon={<HiOutlineSearch className="w-5 h-5" />}
+                  onBlur={() => fetchProperties(1)}
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-slate-900 hover:bg-slate-800 text-white px-10 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              >
+                Search
+              </button>
             </div>
-            <button
-              type="submit"
-              className="bg-sky-600 hover:bg-sky-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Search
-            </button>
           </form>
-        </div>
 
-        {/* Filters Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Filters</h2>
-            <button
-              onClick={resetFilters}
-              className="text-sky-600 hover:text-sky-800 font-medium transition-colors duration-200"
-            >
-              Reset Filters
-            </button>
-          </div>
+          <div className="h-px bg-slate-100 mb-8" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {/* Property Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Property Type
-              </label>
+          {/* Filters Grid */}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-slate-800 font-semibold text-lg">
+                <HiOutlineFilter className="w-5 h-5 text-sky-500" />
+                Filter Properties
+              </div>
+              <button
+                onClick={resetFilters}
+                className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-sky-600 transition-colors"
+              >
+                <HiOutlineRefresh className="w-4 h-4" />
+                Reset All
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Type */}
               <CustomSelect
+                label="Property Type"
                 value={selectedType}
-                onChange={(value) => {
-                  setSelectedType(value);
-                }}
+                onChange={setSelectedType}
                 options={propertyTypeOptions}
-                placeholder="Select property type"
+                icon={<HiOutlineHome className="w-5 h-5" />}
               />
-            </div>
 
-            {/* Price Range */}
-            <div>
-              <FormattedNumberInput
-                label="Min Price (₹)"
-                value={priceRange.min}
-                onChange={(value) => setPriceRange(prev => ({ ...prev, min: value }))}
-                onBlur={handleFilterChange}
-                placeholder="e.g., 10,00,000"
-              />
-            </div>
-
-            <div>
-              <FormattedNumberInput
-                label="Max Price (₹)"
-                value={priceRange.max}
-                onChange={(value) => setPriceRange(prev => ({ ...prev, max: value }))}
-                onBlur={handleFilterChange}
-                placeholder="e.g., 50,00,000"
-              />
-            </div>
-
-            {/* Bedrooms */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bedrooms
-              </label>
+              {/* Category */}
               <CustomSelect
-                value={bedrooms}
-                onChange={(value) => {
-                  setBedrooms(value);
-                }}
-                options={bedroomOptions}
-                placeholder="Select bedrooms"
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
-              <CustomSelect
+                label="Category"
                 value={category}
-                onChange={(value) => {
-                  setCategory(value);
-                }}
+                onChange={setCategory}
                 options={categoryOptions}
-                placeholder="Select category"
+                placeholder="All Categories"
               />
-            </div>
 
-            {/* City */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                City
-              </label>
-              <input
-                type="text"
+              {/* City */}
+              <StandardInput
+                label="City / Location"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                onBlur={handleFilterChange}
-                placeholder="Enter city"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                onBlur={() => fetchProperties(1)}
+                placeholder="e.g. Mumbai"
+                icon={<HiOutlineLocationMarker className="w-5 h-5" />}
               />
-            </div>
 
-            {/* Sort By */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sort By
-              </label>
+              {/* Bedrooms */}
               <CustomSelect
-                value={sortBy}
-                onChange={(value) => {
-                  setSortBy(value);
-                }}
-                options={sortOptions}
-                placeholder="Select sorting"
+                label="Bedrooms"
+                value={bedrooms}
+                onChange={setBedrooms}
+                options={bedroomOptions}
               />
+
+              {/* Min Price */}
+              <FormattedNumberInput
+                label="Min Price"
+                value={priceRange.min}
+                onChange={(value) => setPriceRange(prev => ({ ...prev, min: value }))}
+                onBlur={() => fetchProperties(1)}
+                placeholder="Min Budget"
+                icon={<HiOutlineCurrencyRupee className="w-5 h-5" />}
+              />
+
+              {/* Max Price */}
+              <FormattedNumberInput
+                label="Max Price"
+                value={priceRange.max}
+                onChange={(value) => setPriceRange(prev => ({ ...prev, max: value }))}
+                onBlur={() => fetchProperties(1)}
+                placeholder="Max Budget"
+                icon={<HiOutlineCurrencyRupee className="w-5 h-5" />}
+              />
+
+              {/* Sort By */}
+              <div className="xl:col-span-2">
+                <CustomSelect
+                  label="Sort Results"
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={sortOptions}
+                  icon={<HiOutlineSortDescending className="w-5 h-5" />}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Results Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">
-              {loading ? "Searching..." : `Found ${totalProperties} Properties`}
+        {/* RESULTS SECTION */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {loading ? "Searching..." : `${totalProperties} Properties Found`}
             </h2>
-            <div className="flex gap-2">
-              {selectedType !== "all" && (
-                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                  {selectedType === "buy" ? "For Sale" : "For Rent"}
-                </span>
-              )}
-              {category && (
-                <span className="text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
-                  {category}
-                </span>
-              )}
-            </div>
+            <p className="text-slate-500 mt-1">
+              Showing results based on your preferences
+            </p>
           </div>
 
-          {error && (
-            <div className="text-red-600 bg-red-50 p-4 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
+          {/* Active Filters Tags */}
+          <div className="flex gap-2 flex-wrap">
+            {selectedType !== "all" && (
+              <span className="px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-xs font-bold uppercase tracking-wide border border-sky-100">
+                {selectedType === "buy" ? "For Sale" : "For Rent"}
+              </span>
+            )}
+            {category && (
+              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold uppercase tracking-wide border border-slate-200">
+                {category}
+              </span>
+            )}
+          </div>
+        </div>
 
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
-            </div>
-          ) : properties.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-gray-500 text-lg mb-2">No properties found</div>
-              <p className="text-gray-400">Try adjusting your search criteria</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {properties.map((property) => (
-                  <PropertyCard key={property._id} property={property} />
-                ))}
-              </div>
+        {/* Grid Content */}
+        {error && (
+          <div className="bg-red-50 border border-red-100 text-red-600 p-6 rounded-2xl text-center mb-12">
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-1 mt-8">
-                  {/* Previous Button */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="w-16 h-16 border-4 border-slate-100 border-t-sky-500 rounded-full animate-spin mb-4"></div>
+            <p className="text-slate-500 font-medium">Finding the best properties...</p>
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="bg-white border border-slate-100 rounded-[2rem] p-16 text-center shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <HiOutlineSearch className="w-10 h-10 text-slate-300" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No properties found</h3>
+            <p className="text-slate-500 max-w-md mx-auto">
+              We couldn't find any properties matching your current filters. Try adjusting your search criteria or removing some filters.
+            </p>
+            <button
+              onClick={resetFilters}
+              className="mt-6 text-sky-600 font-semibold hover:text-sky-700 hover:underline"
+            >
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {properties.map((property) => (
+                <div key={property._id} className="transform hover:-translate-y-1 transition-transform duration-300">
+                  <PropertyCard
+                    property={property}
+                    // Check if this ID exists in our saved list
+                    saved={savedPropertyIds.includes(property._id)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* PAGINATION */}
+            {totalPages > 1 && (
+              <div className="mt-16 flex justify-center">
+                <div className="bg-white p-2 rounded-2xl shadow-lg border border-slate-100 inline-flex items-center gap-2">
                   <button
-                    onClick={() => handlePageChange(currentPage - 1)}
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage === 1
-                        ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-600 hover:text-sky-600 hover:bg-sky-50 border border-gray-200 hover:border-sky-200"
-                    }`}
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
                     Previous
                   </button>
 
-                  {/* Page Numbers */}
-                  <div className="flex items-center gap-1">
-                    {/* First Page */}
-                    {currentPage > 3 && (
-                      <>
-                        <button
-                          onClick={() => handlePageChange(1)}
-                          className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-sky-600 hover:bg-sky-50 rounded-lg border border-gray-200 hover:border-sky-200 transition-all duration-200 min-w-[2.5rem]"
-                        >
-                          1
-                        </button>
-                        {currentPage > 4 && (
-                          <span className="px-2 text-gray-400">...</span>
-                        )}
-                      </>
-                    )}
-
-                    {/* Page Range */}
+                  <div className="hidden sm:flex items-center gap-1 px-2">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
-                      if (pageNum > totalPages || pageNum < 1) return null;
+                      let startPage = Math.max(1, currentPage - 2);
+                      if (startPage + 4 > totalPages) startPage = Math.max(1, totalPages - 4);
+                      const pageNum = startPage + i;
 
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => handlePageChange(pageNum)}
-                          className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all duration-200 min-w-[2.5rem] ${
-                            currentPage === pageNum
-                              ? "bg-sky-600 text-white border-sky-600 shadow-sm"
-                              : "text-gray-600 hover:text-sky-600 hover:bg-sky-50 border-gray-200 hover:border-sky-200"
-                          }`}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === pageNum
+                            ? "bg-slate-900 text-white shadow-md scale-105"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                            }`}
                         >
                           {pageNum}
                         </button>
                       );
                     })}
-
-                    {/* Last Page */}
-                    {currentPage < totalPages - 2 && (
-                      <>
-                        {currentPage < totalPages - 3 && (
-                          <span className="px-2 text-gray-400">...</span>
-                        )}
-                        <button
-                          onClick={() => handlePageChange(totalPages)}
-                          className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-sky-600 hover:bg-sky-50 rounded-lg border border-gray-200 hover:border-sky-200 transition-all duration-200 min-w-[2.5rem]"
-                        >
-                          {totalPages}
-                        </button>
-                      </>
-                    )}
                   </div>
 
-                  {/* Next Button */}
                   <button
-                    onClick={() => handlePageChange(currentPage + 1)}
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      currentPage === totalPages
-                        ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-600 hover:text-sky-600 hover:bg-sky-50 border border-gray-200 hover:border-sky-200"
-                    }`}
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
                   </button>
                 </div>
-              )}
-            </>
-          )}
-        </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
       <Footer />
     </div>

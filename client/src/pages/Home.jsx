@@ -19,20 +19,38 @@ const Home = () => {
 
     if (!token || isTokenExpired(token)) {
       dispatch(signOutSuccess());
-
       persistor.purge();
     }
   }, [dispatch, token]);
 
+  // Smooth scroll behavior
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = 'smooth';
+    return () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
+  }, []);
+
   return (
-    <>
+    <main className="min-h-screen bg-white">
+      {/* Hero Section */}
       <Hero />
+      
+      {/* Features Section */}
       <Features />
+      
+      {/* Listings Section */}
       <Listings />
+      
+      {/* Testimonials Section */}
       <Testimonials />
+      
+      {/* About Section */}
       <About />
+      
+      {/* Footer */}
       <Footer />
-    </>
+    </main>
   );
 };
 

@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
 import { NavLink, useNavigate } from "react-router-dom";
-import { MdArrowForwardIos } from "react-icons/md";
+import { HiOutlineArrowRight } from "react-icons/hi";
 import ProfileDrop from "./ProfileDrop";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../store/menu/menuSlice";
 import useMobileScreen from "../hooks/useMobileScreen";
-import { useSelector } from "react-redux";
 import classNames from "classnames";
 
 const ProfileDropDown = (props) => {
@@ -15,48 +14,38 @@ const ProfileDropDown = (props) => {
   const { currentUser } = useSelector((state) => state.user);
 
   const handleToggleMenu = () => {
-    if (isMobile) {
-      dispatch(toggleMenu());
-    }
+    if (isMobile) dispatch(toggleMenu());
     navigate("/sign-in");
   };
 
-  const siginInButtonClasses = classNames(
-    { "w-full": isMobile },
-    "block bg-transparent w-auto text-left md:w-28 md:mx-auto transition-all text-gray-600 hover:text-sky-600",
-    "md:border md:border-sky-700 md:px-5 md:py-2 md:rounded-full md:bg-sky-700 md:hover:border-sky-600 md:hover:bg-sky-600 md:text-white md:hover:text-white"
-  );
-
-  const navLinkClasses = ({ isActive, isPending }) =>
-    classNames(
-      "nav-link flex items-center content-center gap-1 font-medium transition-colors duration-300",
-      {
-        "block px-4 py-2 rounded-md ": isMobile,
-        "bg-sky-700 text-white": isActive && isMobile,
-        "text-sky-700 border-b-2 border-sky-700 md:text-white md:border-none":
-          isActive && !isMobile,
-        "text-gray-600": isPending,
-        "text-gray-600 hover:bg-gray-400 hover:text-white":
-          !isActive && isMobile,
-      }
-    );
-
   return (
-    <div className={`relative ${props.class}`}>
+    <div className={`relative ${props.class || ""}`}>
       {currentUser ? (
         <ProfileDrop />
       ) : (
-        <div className="bg-transparent space-y-5 top-16 left-0 md:static md:flex md:space-y-0 md:space-x-5 ">
+        <div className={classNames("flex gap-3", { "flex-col": isMobile, "flex-row items-center": !isMobile })}>
           <button
-            className={siginInButtonClasses}
             onClick={handleToggleMenu}
-            aria-label="Sign in"
+            className={classNames(
+              "group flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300",
+              {
+                "bg-gradient-to-r from-sky-600 to-cyan-600 text-white hover:shadow-lg hover:shadow-sky-500/30 px-6 py-2.5 text-sm hover:-translate-y-0.5": !isMobile,
+                "bg-gradient-to-r from-sky-600 to-cyan-600 text-white w-full py-4 rounded-2xl shadow-md": isMobile,
+              }
+            )}
           >
-            <NavLink to="/sign-in" className={navLinkClasses}>
-              <p>Sign in</p>
-              <MdArrowForwardIos className="text-base font-medium" />
-            </NavLink>
+            <span>Sign In</span>
+            {!isMobile && <HiOutlineArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
           </button>
+
+          {!isMobile && (
+            <NavLink
+              to="/sign-up"
+              className="text-sm font-semibold text-slate-500 hover:text-slate-900 px-4 py-2 transition-colors"
+            >
+              Sign Up
+            </NavLink>
+          )}
         </div>
       )}
     </div>

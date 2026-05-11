@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { categories, facilities, types } from "../assets/resources/data";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import { BiTrash } from "react-icons/bi";
-import { IoIosImages } from "react-icons/io";
-import { FaMinus, FaPlus } from "react-icons/fa";
-import BlocksShuffle2 from "../assets/svgs/blocks-shuffle-2";
-import classNames from "classnames";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { app } from "../firebase/firebaseConfig";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import "../assets/css/pages.css";
+import axios from "axios";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { categories, types, facilities } from "../assets/resources/data";
+import BlocksShuffle2 from "../assets/svgs/blocks-shuffle-2";
+import { 
+  HiOutlineCloudUpload, 
+  HiOutlineTrash, 
+  HiOutlinePlus, 
+  HiOutlineMinus 
+} from "react-icons/hi";
+import { FaRupeeSign } from "react-icons/fa";
 
-// Utility functions for number formatting
+// Utility: Number Formatting
 const formatNumber = (value) => {
   if (!value || value === "") return "";
   const num = parseInt(value.toString().replace(/,/g, ""));
@@ -28,186 +23,123 @@ const formatNumber = (value) => {
 };
 
 const parseNumber = (value) => {
-  if (!value || value === "") return "";
+  if (!value) return "";
   return value.toString().replace(/,/g, "");
 };
 
-// Enhanced number input component with better editing support
-const FormattedNumberInput = ({
-  value,
-  onChange,
-  onBlur,
-  placeholder,
-  label,
-  className = ""
-}) => {
-  const [displayValue, setDisplayValue] = useState(formatNumber(value));
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    // Always show formatted value, but track if user is actively editing
-    setDisplayValue(formatNumber(value));
-  }, [value]);
-
-  const handleFocus = () => {
-    setIsEditing(true);
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    onBlur && onBlur();
-  };
-
-  const handleChange = (e) => {
-    const inputValue = e.target.value;
-    // Allow only numbers and commas for formatted input
-    const cleanedValue = inputValue.replace(/[^\d,]/g, '');
-
-    // Parse the cleaned value to get the actual number
-    const parsedValue = parseNumber(cleanedValue);
-
-    // Update display to show what user types (with formatting)
-    setDisplayValue(formatNumber(parsedValue) || cleanedValue);
-
-    // Update parent state with parsed number
-    onChange(parsedValue);
-  };
-
-  return (
-    <div>
-      {label && (
-        <label className="block text-gray-700 font-medium pb-1">
-          {label}
-        </label>
-      )}
-      <input
-        type="text"
-        value={displayValue}
-        onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={`outline-none border-none ring-1 mb-2 p-2 ${className} rounded-md shadow-sm focus:ring-sky-600`}
-      />
-    </div>
-  );
-};
-
-const AddProperty = () => {
+const PropertyForm = () => {
+  const { id } = useParams();
+  const isEditMode = !!id;
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  
+  // React Hook Form
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
-  } = useForm();
-
-  const userId = useSelector((state) => state.user.currentUser._id);
-
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
-  const [category, setCategory] = useState("");
-  const [type, setType] = useState("");
-  const [photos, setPhotos] = useState([]);
-  const [amenities, setAmenities] = useState([]);
-  const [error, setError] = useState("");
-
-  const [categoryError, setCategoryError] = useState("");
-  const [typePlaceError, setTypePlaceError] = useState("");
-  const [photosError, setPhotosError] = useState("");
-
-  const [details, setDetails] = useState({
-    guestCount: 1,
-    bedroomsCount: 1,
-    bedCount: 1,
-    bathroomsCount: 1,
+  } = useForm({
+    defaultValues: {
+      guestCount: 1,
+      bedroomsCount: 1,
+      bedCount: 1,
+      bathroomsCount: 1,
+      propertyType: "rent",
+      price: "",
+      postalCode: ""
+    }
   });
 
-  const addressFields = [
-    { label: "Street Address", name: "streetAddress", placeholder: "Street" },
-    { label: "City", name: "city", placeholder: "City" },
-    { label: "State", name: "state", placeholder: "State" },
-    { label: "Country", name: "country", placeholder: "Country" },
-  ];
+  // Local State
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [photos, setPhotos] = useState([]);
+  
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedAreaType, setSelectedAreaType] = useState("");
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
 
-  const labels = {
-    guestCount: "Guestrooms",
-    bedroomsCount: "Bedrooms",
-    bedCount: "Beds",
-    bathroomsCount: "Bathrooms",
-  };
+  const watchPrice = watch("price");
+  const watchPropertyType = watch("propertyType");
+  const watchDetails = watch();
 
-  const radios = ["buy", "rent"];
-
-  const selectedRadioOptions = watch("propertyType");
-
+  // --- 1. INITIAL FETCH ---
   useEffect(() => {
-    return () => {
-      photos.forEach((image) => URL.revokeObjectURL(image.url));
-    };
-  }, [photos]);
+    if (isEditMode) {
+      const fetchProperty = async () => {
+        try {
+          const res = await axios.get(`/api/listing/list/${id}`);
+          const property = res.data.listing;
 
-  const storeImage = async (file, retries = 3) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName =
-        "propertyImages/" + userId + "/" + new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          if (retries > 0) {
-            console.warn(`Retrying upload... Attempts left: ${retries}`);
-            setTimeout(() => {
-              resolve(storeImage(file, retries - 1)); // Retry upload
-            }, 1000);
-          } else {
-            console.error("Upload failed after multiple attempts:", error);
-            reject(new Error("Failed to upload image. Please try again."));
-          }
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
+          setSelectedCategory(property.category);
+          setSelectedAreaType(property.area);
+          setSelectedAmenities(property.features);
+          
+          setPhotos(
+            property.imageUrls.map((url, index) => ({
+              id: `existing-${index}`,
+              url,
+              file: null,
+            }))
+          );
+
+          reset({
+            name: property.name,
+            description: property.description,
+            streetAddress: property.address.streetAddress,
+            city: property.address.city,
+            state: property.address.state,
+            country: property.address.country,
+            postalCode: property.address.postalCode,
+            price: property.price,
+            propertyType: property.type,
+            guestCount: property.guestrooms,
+            bedroomsCount: property.bedrooms,
+            bedCount: property.beds,
+            bathroomsCount: property.bathrooms,
           });
+        } catch (err) {
+          console.error("Error fetching property:", err);
+          setSubmitError("Failed to fetch property details.");
         }
-      );
-    });
+      };
+      fetchProperty();
+    }
+  }, [id, isEditMode, reset]);
+
+  // --- 2. HANDLERS ---
+  const handleCounter = (field, operation) => {
+    const currentVal = watchDetails[field] || 0;
+    const newVal = operation === 'inc' ? currentVal + 1 : Math.max(1, currentVal - 1);
+    setValue(field, newVal);
   };
 
-  const handleSelectAmenities = (facility) => {
-    if (amenities.includes(facility)) {
-      setAmenities((prevAmenities) =>
-        prevAmenities.filter((option) => option !== facility)
-      );
+  const toggleAmenity = (label) => {
+    if (selectedAmenities.includes(label)) {
+      setSelectedAmenities(prev => prev.filter(a => a !== label));
     } else {
-      setAmenities((prev) => [...prev, facility]);
+      setSelectedAmenities(prev => [...prev, label]);
     }
   };
 
   const handleUploadPhotos = (e) => {
     const files = Array.from(e.target.files);
-    const newImages = files.map((file) => {
-      const url = URL.createObjectURL(file);
-      return { id: `${file.name}-${Math.random()}`, url, file };
-    });
+    const newImages = files.map((file) => ({
+      id: `${file.name}-${Math.random()}`,
+      url: URL.createObjectURL(file),
+      file
+    }));
     setPhotos((prev) => [...prev, ...newImages]);
   };
 
   const handleDragPhoto = (result) => {
     if (!result.destination) return;
-
     const items = Array.from(photos);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-
     setPhotos(items);
   };
 
@@ -215,506 +147,414 @@ const AddProperty = () => {
     setPhotos((prev) => prev.filter((image) => image.id !== id));
   };
 
-  const handleDetailChange = (key, operation) => {
-    setDetails((prev) => ({
-      ...prev,
-      [key]:
-        operation === "increment" ? prev[key] + 1 : Math.max(1, prev[key] - 1),
-    }));
-  };
 
-  const handlePost = async (data) => {
-    // e.preventDefault();
-    let hasError = false;
-
-    if (!category) {
-      setCategoryError("You must select the category of your property.");
-      hasError = true;
-    } else {
-      setCategoryError("");
-    }
-
-    if (!type) {
-      setTypePlaceError("You must select the type of your place.");
-      hasError = true;
-    } else {
-      setTypePlaceError("");
-    }
-
-    if (!photos || photos.length < 1) {
-      setPhotosError("You must upload at least one image");
-      hasError = true;
-    } else {
-      setPhotosError("");
-    }
-
-    if (hasError) {
-      return;
-    }
+  // --- 3. SUBMIT LOGIC ---
+  const onSubmit = async (data) => {
+    if (!selectedCategory) return setSubmitError("Please select a property category.");
+    if (!selectedAreaType) return setSubmitError("Please select the type of place.");
+    if (photos.length === 0) return setSubmitError("Please upload at least one photo.");
 
     setLoading(true);
-    setError(false);
+    setSubmitError("");
 
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    try {
+      const formDataToSend = new FormData();
+      
+      // Basic info
+      formDataToSend.append("userRef", currentUser._id);
+      formDataToSend.append("name", data.name);
+      formDataToSend.append("description", data.description);
+      formDataToSend.append("price", parseInt(data.price.toString().replace(/,/g, ""), 10));
+      formDataToSend.append("type", data.propertyType);
+      formDataToSend.append("bedrooms", data.bedroomsCount);
+      formDataToSend.append("bathrooms", data.bathroomsCount);
+      formDataToSend.append("guestrooms", data.guestCount);
+      formDataToSend.append("beds", data.bedCount);
+      formDataToSend.append("area", selectedAreaType);
+      formDataToSend.append("category", selectedCategory);
 
-    const updatedFormData = {
-      userRef: userId,
-      name: data.name,
-      description: data.description,
-      address: {
+      // Objects/Arrays as JSON strings
+      formDataToSend.append("address", JSON.stringify({
         streetAddress: data.streetAddress,
         city: data.city,
         state: data.state,
         country: data.country,
-        postalCode: parseInt(data.postalCode, 10) || 0,
-      },
-      price: parseInt(data.price, 10) || 0, // Ensure price is stored as a number
-      type: data.propertyType,
-      bedrooms: details.bedroomsCount,
-      bathrooms: details.bathroomsCount,
-      guestrooms: details.guestCount,
-      beds: details.bedCount,
-      features: amenities,
-      area: type,
-      category: category,
-      imageUrls: [],
-    };
+        postalCode: parseInt(data.postalCode, 10),
+      }));
+      formDataToSend.append("features", JSON.stringify(selectedAmenities));
 
-    try {
-      // Upload images
+      // Build a list of identifiers in the correct order to preserve reordering
+      const newFiles = photos.filter(p => p.file);
+      const imageOrder = photos.map((photo) => {
+        if (photo.file) {
+          const index = newFiles.indexOf(photo);
+          return `__NEW_FILE_${index}__`;
+        }
+        return photo.url;
+      });
+      formDataToSend.append("imageUrls", JSON.stringify(imageOrder));
 
-      // console.log(updatedFormData);
-
-      const imageUrls = await Promise.all(
-        photos.map(async (photo, index) => {
-          await delay(index * 1000);
-          return storeImage(photo.file);
-        })
-      );
-      updatedFormData.imageUrls = imageUrls;
-
-      // console.log(updatedFormData);
-
-      const res = await axios.post("/api/listing/create", updatedFormData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      // Append New Files
+      newFiles.forEach((photo) => {
+        formDataToSend.append("images", photo.file);
       });
 
-      const data = await res.data;
-      if (!data.success) {
-        setError(data.message);
-        console.log(data.message);
+      let res;
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      if (isEditMode) {
+        res = await axios.put(`/api/listing/update/${id}`, formDataToSend, config);
+      } else {
+        res = await axios.post("/api/listing/create", formDataToSend, config);
+      }
+
+      const responseData = res.data;
+      if (!responseData.success) {
+        setSubmitError(responseData.message);
         return;
       }
+
       navigate("/", { replace: true });
-      setError(false);
     } catch (err) {
-      setError(err.response?.data?.message);
+      setSubmitError(err.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
+  // --- REUSABLE COMPONENTS ---
+  const SectionHeader = ({ step, title }) => (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="bg-sky-100 text-sky-700 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+          Step {step}
+        </span>
+      </div>
+      <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{title}</h2>
+    </div>
+  );
+
   return (
-    <div>
-      <section className="mx-10 py-10">
-        <h3 className="text-2xl font-semibold px-2 pb-5">Add Property</h3>
-        <form onSubmit={handleSubmit(handlePost)}>
-          <h4 className="text-lg font-medium px-2">
-            Describe Your Property?<span className="text-red-500">*</span>
-          </h4>
-          {/* Categories container */}
-          <div className="hide-scrollbar flex gap-x-1 xl:justify-center bg-white ring-1 ring-slate-400/5 shadow-md rounded-full px-2 py-3 my-5">
-            {categories
-              .filter((item) => item.label !== "All")
-              .map((item) => (
-                <div
-                  key={item.label}
-                  onClick={() => setCategory(item.label)}
-                  className={classNames(
-                    "flex items-center flex-col gap-2 p-2 rounded-xl cursor-pointer min-w-24 xl:min-w-32",
-                    {
-                      "bg-sky-100": category === item.label,
-                    }
-                  )}
-                  style={{ flexShrink: 0 }}
-                >
-                  <div
-                    className="text-sky-600 rounded-full h-10 w-10 p-2 flex items-center justify-center text-lg"
-                    style={{ backgroundColor: `${item.color}` }}
-                  >
-                    {item.icon}
-                  </div>
-                  <p
-                    className={`${
-                      category === item.label ? "text-sky-600" : ""
-                    } text-base`}
-                  >
-                    {item.label}
-                  </p>
+    <div className="min-h-screen bg-slate-50 font-sans pb-20">
+      
+      {/* Header Banner */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-6 py-8">
+          <h1 className="text-3xl font-bold text-slate-900">
+            {isEditMode ? "Edit Property" : "Add New Property"}
+          </h1>
+          <p className="text-slate-500 mt-1">
+            {isEditMode ? "Update your property details below" : "Fill in the details to list your property"}
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto px-6 py-10 space-y-12">
+        
+        {/* Step 1: Category */}
+        <section>
+          <SectionHeader step="01" title="Which describes your place best?" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.filter(c => c.label !== "All").map((cat) => (
+              <button
+                key={cat.label}
+                type="button"
+                onClick={() => setSelectedCategory(cat.label)}
+                className={`
+                  flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200
+                  ${selectedCategory === cat.label 
+                    ? 'border-sky-500 bg-sky-50 text-sky-700 shadow-sm' 
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:shadow-sm'}
+                `}
+              >
+                <div className="text-2xl mb-2">{cat.icon}</div>
+                <span className="text-sm font-semibold text-center">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+          {!selectedCategory && submitError && <p className="text-rose-500 text-sm mt-2 font-medium">Please select a category</p>}
+        </section>
+
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 2: Type of Place */}
+        <section>
+          <SectionHeader step="02" title="What type of place will guests have?" />
+          <div className="grid md:grid-cols-3 gap-4">
+            {types.map((t) => (
+              <button
+                key={t.name}
+                type="button"
+                onClick={() => setSelectedAreaType(t.name)}
+                className={`
+                  p-6 rounded-2xl border-2 text-left transition-all duration-200 flex flex-col gap-2
+                  ${selectedAreaType === t.name 
+                    ? 'border-sky-500 bg-sky-50 shadow-sm' 
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'}
+                `}
+              >
+                <span className="text-3xl text-slate-700">{t.icon}</span>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">{t.name}</h3>
+                  <p className="text-sm text-slate-500 mt-1 leading-relaxed">{t.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          {!selectedAreaType && submitError && <p className="text-rose-500 text-sm mt-2 font-medium">Please select a property type</p>}
+        </section>
+
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 3: Location */}
+        <section>
+          <SectionHeader step="03" title="Where is your place located?" />
+          <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Street Address</label>
+                <input 
+                  {...register("streetAddress", { required: "Required" })}
+                  placeholder="e.g. 123 Main St" 
+                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:bg-white transition-colors text-slate-900 placeholder:text-slate-400"
+                />
+                {errors.streetAddress && <p className="text-rose-500 text-xs mt-1">{errors.streetAddress.message}</p>}
+              </div>
+              
+              {['city', 'state', 'country'].map((field) => (
+                <div key={field}>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 capitalize">{field}</label>
+                  <input 
+                    {...register(field, { required: "Required" })}
+                    placeholder={`e.g. ${field === 'city' ? 'Mumbai' : field === 'state' ? 'Maharashtra' : 'India'}`}
+                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:bg-white transition-colors text-slate-900 placeholder:text-slate-400"
+                  />
+                  {errors[field] && <p className="text-rose-500 text-xs mt-1">{errors[field].message}</p>}
                 </div>
               ))}
-          </div>
-          {/* Error Message */}
-          {categoryError && (
-            <p className="text-red-500 text-sm px-2">{categoryError}</p>
-          )}
-
-          {/* Container Types & Locations */}
-          <div className="px-2 flex flex-col lg:flex-row lg:justify-between lg:gap-10">
-            <div className="flex flex-1 flex-col xl:flex-row gap-x-16 mt-10">
-              <div className="flex-1">
-                {/* Types of Places */}
-                <h4 className="text-lg font-medium px-2 pb-5">
-                  What is the type of your place?
-                  <span className="text-red-500">*</span>
-                </h4>
-                <div className="flex flex-col gap-y-3">
-                  {types.map((item) => (
-                    <div
-                      key={item.name}
-                      className={`ring-1 ${
-                        type === item.name ? "ring-sky-600" : "ring-slate-900/5"
-                      } flex items-center justify-between max-w-[777px] rounded-xl px-4 py-1 `}
-                      onClick={() => setType(item.name)}
-                    >
-                      <div>
-                        <h5 className="text-base font-semibold">{item.name}</h5>
-                        <p className="text-sm text-gray-600">
-                          {item.description}
-                        </p>
-                      </div>
-
-                      <div className="text-2xl">{item.icon}</div>
-                    </div>
-                  ))}
-                </div>
-                {/* Error Message */}
-                {typePlaceError && (
-                  <p className="text-red-500 text-sm p-2">{typePlaceError}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Place Location */}
-            <div className="flex-1 my-5 lg:mt-10">
-              <h4 className="text-lg font-medium px-2 py-2">
-                What&apos;s the address of your place?
-              </h4>
-              <div className="px-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {addressFields.map((field) => (
-                  <div key={field.name}>
-                    <label className="block text-gray-700 font-medium pb-1">
-                      {field.label}:<span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={field.placeholder}
-                      {...register(field.name, {
-                        required: `${field.label} is required`,
-                      })}
-                      className={`outline-none border-none ring-1 mb-2 p-2 ${
-                        errors[field.name] ? "ring-red-600" : "ring-gray-300"
-                      } rounded-md shadow-sm focus:ring-sky-600`}
-                    />
-                    {errors[field.name] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[field.name]?.message}
-                      </p>
-                    )}
-                  </div>
-                ))}
-
-                <div>
-                  <label className="block text-gray-700 font-medium pb-1">
-                    Postal Code:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Enter your postal code (e.g., 380021)"
-                    {...register("postalCode", {
-                      required: "Postal code is required",
-                      pattern: {
-                        value: /^[0-9]{6}$/,
-                        message: "Please enter a valid 6-digit postal code",
-                      },
-                    })}
-                    className={`outline-none border-none ring-1 mb-2 p-2 ${
-                      errors.postalCode ? "ring-red-600" : "ring-gray-300"
-                    } rounded-md shadow-sm focus:ring-sky-600`}
-                  />
-                  {errors.postalCode && (
-                    <p className="text-red-500 text-sm">
-                      {errors.postalCode.message}
-                    </p>
-                  )}
-                </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Postal Code</label>
+                <input 
+                  type="number"
+                  {...register("postalCode", { required: "Required", pattern: { value: /^[0-9]{6}$/, message: "Invalid code" } })}
+                  placeholder="e.g. 400001" 
+                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:bg-white transition-colors text-slate-900 placeholder:text-slate-400"
+                />
+                {errors.postalCode && <p className="text-rose-500 text-xs mt-1">{errors.postalCode.message}</p>}
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Essential */}
-          <h4 className="text-lg font-medium px-2 pb-5">
-            Provide some essential details about your place?
-          </h4>
-          <div className="px-2 flex flex-wrap gap-4 mb-4">
-            {Object.entries(details).map(([key, value]) => (
-              <div
-                key={key}
-                className="flex items-center gap-x-4 ring-1 ring-slate-900/5 p-2 rounded"
-              >
-                <h5>{labels[key]}</h5>
-                <div className="flex items-center gap-x-2 bg-white">
-                  <FaMinus
-                    onClick={() => handleDetailChange(key, "decrement")}
-                    className="h-6 w-6 text-xl p-1 rounded cursor-pointer"
-                  />
-                  <p>{value}</p>
-                  <FaPlus
-                    onClick={() => handleDetailChange(key, "increment")}
-                    className="h-6 w-6 text-xl bg-sky-600 text-white p-1 rounded cursor-pointer"
-                  />
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 4: Details */}
+        <section>
+          <SectionHeader step="04" title="Share some basics about your place" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Guests', icon: '👤', key: 'guestCount' },
+              { label: 'Bedrooms', icon: '🛏️', key: 'bedroomsCount' },
+              { label: 'Beds', icon: '🛋️', key: 'bedCount' },
+              { label: 'Bathrooms', icon: '🚿', key: 'bathroomsCount' },
+            ].map((item) => (
+              <div key={item.key} className="bg-white border-2 border-slate-200 rounded-2xl p-6 flex flex-col items-center">
+                <span className="text-2xl mb-2">{item.icon}</span>
+                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">{item.label}</span>
+                <div className="flex items-center gap-4">
+                  <button type="button" onClick={() => handleCounter(item.key, 'dec')} className="p-2 rounded-full hover:bg-slate-100 text-slate-500 border border-slate-300 transition-colors">
+                    <HiOutlineMinus />
+                  </button>
+                  <span className="text-xl font-bold text-slate-900 w-6 text-center">{watchDetails[item.key]}</span>
+                  <button type="button" onClick={() => handleCounter(item.key, 'inc')} className="p-2 rounded-full bg-slate-900 text-white hover:bg-slate-700 transition-colors">
+                    <HiOutlinePlus />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+        </section>
 
-          {/* Features */}
-          <div className="my-10">
-            <h4 className="text-lg font-medium px-2 pb-2">
-              Describe about the features of your place?
-            </h4>
-            <ul className="flex items-center flex-wrap gap-3 mb-10">
-              {facilities.map((card) => (
-                <li
-                  key={card.label}
-                  onClick={() => handleSelectAmenities(card.label)}
-                  className={`ring-1 ${
-                    amenities.includes(card.label)
-                      ? "ring-sky-600"
-                      : "ring-slate-900/5"
-                  } flex items-center gap-3 bg-white p-4 rounded cursor-default`}
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 5: Amenities */}
+        <section>
+          <SectionHeader step="05" title="What amenities do you offer?" />
+          <div className="flex flex-wrap gap-3">
+            {facilities.map((f) => (
+              <button
+                key={f.label}
+                type="button"
+                onClick={() => toggleAmenity(f.label)}
+                className={`
+                  px-5 py-3 rounded-xl border-2 flex items-center gap-2 font-medium transition-all duration-200
+                  ${selectedAmenities.includes(f.label) 
+                    ? 'border-sky-500 bg-sky-50 text-sky-700' 
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}
+                `}
+              >
+                <span>{f.icon}</span>
+                <span>{f.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 6: Photos */}
+        <section>
+          <SectionHeader step="06" title="Add some photos of your place" />
+          <DragDropContext onDragEnd={handleDragPhoto}>
+            <Droppable droppableId="photos" direction="horizontal">
+              {(provided) => (
+                <div 
+                  className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
                 >
-                  <div>{card.icon}</div>
-                  <p>{card.label}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Upload Images */}
-          <div className="my-10">
-            <h4 className="h-4 my-6 text-lg font-medium px-2 pb-2 mb-12 sm:mb-5">
-              Include images showcasing your property?
-              <span className="text-red-500">*</span>
-            </h4>
-            {/* Image Upload */}
-            <DragDropContext
-              onDragEnd={handleDragPhoto}
-              className="mt-20 sm:mt-0"
-            >
-              <Droppable droppableId="photos" direction="horizontal">
-                {(provided) => (
-                  <div
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4 bg-gray-600 rounded-lg shadow-lg"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {/* Preview Images */}
-                    {photos.length >= 1 && (
-                      <>
-                        {photos.map((image, index) => (
-                          <Draggable
-                            key={image.id}
-                            draggableId={image.id}
-                            index={index}
+                  {photos.map((photo, index) => (
+                    <Draggable key={photo.id} draggableId={photo.id} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="relative group aspect-square rounded-2xl overflow-hidden shadow-sm bg-white border border-slate-200"
+                        >
+                          <img src={photo.url} alt="Property" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(photo.id)}
+                            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-rose-500 hover:text-rose-600 shadow-sm"
                           >
-                            {(provided) => (
-                              <div
-                                className="relative group"
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <img
-                                  src={image.url}
-                                  alt="Preview"
-                                  className="aspect-square object-cover h-52 w-full rounded-lg shadow-md"
-                                />
-                                <button
-                                  className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-200"
-                                  onClick={() => handleRemovePhoto(image.id)}
-                                >
-                                  <BiTrash className="text-red-600" />
-                                </button>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      </>
-                    )}
-
-                    {provided.placeholder}
-
-                    {/* Upload Button */}
-
-                    <div className="flex items-center justify-center">
-                      <label
-                        htmlFor="fileInput"
-                        className="group flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-400 hover:border-gray-400/90 transition-colors cursor-pointer aspect-square"
-                      >
-                        <div className="w-full flex items-center justify-center pb-4">
-                          <IoIosImages className="text-6xl text-gray-400 group-hover:text-gray-600 transition-colors" />
+                            <HiOutlineTrash />
+                          </button>
                         </div>
-                        <p className="text-sm text-gray-400 group-hover:text-gray-600">
-                          Upload from your device
-                        </p>
-                      </label>
-                      <input
-                        id="fileInput"
-                        type="file"
-                        multiple
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleUploadPhotos}
-                      />
-                    </div>
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
 
-            {/* Error Messages */}
-            {photosError && (
-              <p className="text-red-500 text-sm p-2">{photosError}</p>
-            )}
-          </div>
+                  {/* Upload Button */}
+                  <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-sky-500 hover:bg-sky-50 transition-all group">
+                    <HiOutlineCloudUpload className="text-3xl text-slate-400 group-hover:text-sky-500 mb-2" />
+                    <span className="text-sm font-bold text-slate-500 group-hover:text-sky-600">Upload Photos</span>
+                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleUploadPhotos} />
+                  </label>
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          {!photos.length && submitError && <p className="text-rose-500 text-sm mt-2 font-medium">Please upload at least 1 photo</p>}
+        </section>
 
-          {/* propery title and description */}
-          <div className="my-10">
-            <h4 className="h-4 my-6 text-lg font-medium px-2 pb-2">
-              How would your characterize the charm and excitement of your
-              property?
-            </h4>
-            <div className="mt-20 sm:mt-0">
+        <div className="h-px bg-slate-200" />
+
+        {/* Step 7: Description & Price */}
+        <section>
+          <SectionHeader step="07" title="Final details" />
+          <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 grid md:grid-cols-2 gap-8">
+            
+            <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 font-medium pb-1">
-                  Property Title/Name:<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  {...register("name", { required: "Name is required" })}
-                  className={`outline-none border-none ring-1 mb-1 p-2 w-full ${
-                    errors.name ? "ring-red-600" : "ring-gray-300"
-                  } rounded-md shadow-sm focus:ring-sky-600`}
-                  placeholder="Enter property title/name"
+                <label className="block text-sm font-bold text-slate-700 mb-2">Title</label>
+                <input 
+                  {...register("name", { required: "Required" })}
+                  placeholder="e.g. Luxurious Villa in Bali" 
+                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:bg-white transition-colors text-slate-900 placeholder:text-slate-400"
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name.message}</p>
-                )}
+                {errors.name && <p className="text-rose-500 text-xs mt-1">{errors.name.message}</p>}
               </div>
-
               <div>
-                <label className="block text-gray-700 font-medium pb-1">
-                  Description:<span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  rows={10}
-                  {...register("description", {
-                    required: "Description is required",
-                  })}
-                  className={`outline-none border-none ring-1 mb-0 p-2 w-full ${
-                    errors.description ? "ring-red-600" : "ring-gray-300"
-                  } rounded-md shadow-sm focus:ring-sky-600`}
-                  placeholder="Enter property description"
-                ></textarea>
-                {errors.description && (
-                  <p className="text-red-500 text-sm mb-2">
-                    {errors.description.message}
-                  </p>
-                )}
+                <label className="block text-sm font-bold text-slate-700 mb-2">Description</label>
+                <textarea 
+                  rows={5}
+                  {...register("description", { required: "Required" })}
+                  placeholder="Tell us about the property..."
+                  className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:bg-white transition-colors text-slate-900 placeholder:text-slate-400 resize-none"
+                />
+                {errors.description && <p className="text-rose-500 text-xs mt-1">{errors.description.message}</p>}
               </div>
+            </div>
 
-              <div className="mb-2">
-                <h4 className="block text-gray-700 font-medium">
-                  Is this property for Buy or Rent?
-                  <span className="text-red-500">*</span>
-                </h4>
-
-                <div className="flex gap-8">
-                  {radios.map((value, index) => (
-                    <label key={index} className="flex items-center">
-                      <input
-                        type="radio"
-                        value={value}
-                        {...register("propertyType", {
-                          required: "Please select an option",
-                        })}
-                        className="h-4 w-4 text-sky-600 focus:ring-sky-500 "
-                      />
-                      <span className="ml-2 text-gray-700">{value}</span>
+            <div className="space-y-6">
+               <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Listing Type</label>
+                <div className="flex gap-4">
+                  {['buy', 'rent'].map((option) => (
+                    <label key={option} className={`flex-1 p-4 rounded-xl border-2 cursor-pointer transition-all ${watchPropertyType === option ? 'border-sky-500 bg-sky-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="radio" value={option} {...register("propertyType")} className="hidden" />
+                        <div>
+                          <span className="font-bold text-slate-900 capitalize">{option === 'buy' ? 'Sell' : 'Rent'}</span>
+                          <p className="text-xs text-slate-500 mt-1">Property for {option}</p>
+                        </div>
+                      </div>
                     </label>
                   ))}
                 </div>
-                {errors.propertyType && (
-                  <p className="text-red-500 text-sm mb-2">
-                    {errors.propertyType.message}
-                  </p>
-                )}
               </div>
 
               <div>
-                <label className="block text-gray-700 font-medium">
-                  Price:<span className="text-red-500">*</span>
-                </label>
-
+                <label className="block text-sm font-bold text-slate-700 mb-2">Price</label>
                 <div className="relative">
-                  <div className="flex justify-start items-baseline">
-                    {/* Currency Symbol */}
-                    <span className="absolute left-0 top-2 flex items-center pl-3 text-gray-500">
-                      ₹
-                    </span>
-                    {/* Input Field */}
-                    <FormattedNumberInput
-                      value={watch("price") || ""}
-                      onChange={(value) => {
-                        // Ensure the value is properly converted to a number
-                        const numericValue = value ? parseInt(value.toString().replace(/,/g, ""), 10) : "";
-                        setValue("price", numericValue);
+                  <div className="flex items-center w-full bg-white border-2 border-slate-200 rounded-xl overflow-hidden focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-500/10 transition-all">
+                    <div className="pl-4 text-slate-400">
+                      <FaRupeeSign />
+                    </div>
+                    <input
+                      type="text"
+                      {...register("price", { required: "Required" })}
+                      placeholder="e.g. 50,00,000"
+                      className="w-full bg-transparent border-none outline-none px-3 py-3.5 text-slate-900 font-bold placeholder:text-slate-400 placeholder:font-normal"
+                      value={watchPrice ? formatNumber(parseNumber(watchPrice)) : ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        setValue('price', val);
                       }}
-                      onBlur={() => {}}
-                      placeholder="e.g., 25,00,000"
-                      className={`pl-8 pr-4 py-2 ${errors.price ? "ring-red-600" : "ring-gray-300"}`}
                     />
-                    {selectedRadioOptions === "rent" && (
-                      <span className="ml-3 text-xl">/month</span>
-                    )}
                   </div>
-                  {errors.price && (
-                    <p className="text-red-500 text-sm">
-                      {errors.price.message}
-                    </p>
-                  )}
+                  {watchPropertyType === 'rent' && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">/ month</span>}
                 </div>
+                {errors.price && <p className="text-rose-500 text-xs mt-1">{errors.price.message}</p>}
               </div>
             </div>
           </div>
+        </section>
 
-          <button
-            className="flex items-center justify-center border-2 border-sky-700 bg-sky-700 text-white w-40 my-5 px-4 py-2 rounded-md hover:bg-sky-600 hover:border-sky-600 transition-colors duration-300 disabled:bg-sky-500 disabled:cursor-not-allowed disabled:hover:border-sky-500"
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4 pt-4">
+          <button 
+            type="button" 
+            onClick={() => navigate(-1)} 
+            className="px-8 py-4 rounded-xl font-bold text-slate-600 bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
             disabled={loading}
           >
-            {loading || error ? (
-              <BlocksShuffle2 className="w-6 h-6" />
-            ) : (
-              "Create Property"
-            )}
+            Cancel
           </button>
-        </form>
-      </section>
+          <button 
+            type="submit" 
+            className="px-10 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-sky-600 to-cyan-600 hover:shadow-lg hover:shadow-sky-500/30 hover:-translate-y-0.5 transition-all disabled:opacity-70 flex items-center gap-2"
+            disabled={loading}
+          >
+            {loading ? <BlocksShuffle2 className="w-6 h-6 animate-spin" /> : (isEditMode ? 'Update Property' : 'Create Listing')}
+          </button>
+        </div>
+
+        {submitError && (
+          <div className="p-4 bg-rose-50 text-rose-600 rounded-xl text-center border border-rose-100 font-medium">
+            {submitError}
+          </div>
+        )}
+      </form>
     </div>
   );
 };
 
-export default AddProperty;
+export default PropertyForm;

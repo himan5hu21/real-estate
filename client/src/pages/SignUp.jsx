@@ -1,15 +1,12 @@
-import { Form } from "react-router-dom";
+import { Form, Link } from "react-router-dom";
 import BlocksShuffle2 from "../assets/svgs/blocks-shuffle-2";
 import useAuth from "../hooks/useAuth";
-import {
-  requestStart,
-  requestFailure,
-  signUpSuccess,
-} from "../store/user/userSlice";
+import { requestStart, requestFailure, signUpSuccess } from "../store/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import QAuth from "../components/QAuth";
 import useProfileForm from "../hooks/useProfileForm";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { HiOutlineUser, HiOutlineMail, HiOutlineLockClosed } from "react-icons/hi";
 import { useState } from "react";
 
 function SignUp() {
@@ -19,29 +16,24 @@ function SignUp() {
   const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState({
-    username: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
+    pass: false,
+    confirm: false,
   });
-
-  const excludeKeywords = ["username", "email", "created"];
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const data = new FormData(e.target);
-    const formData = Object.fromEntries(data);
+    const formObject = Object.fromEntries(data);
 
-    if (formData.password !== formData.confirmPassword) {
-      dispatch(requestFailure("Confirm password do not match"));
+    if (formObject.password !== formObject.confirmPassword) {
+      dispatch(requestFailure("Passwords do not match"));
       return;
     }
 
-    delete formData.confirmPassword;
+    delete formObject.confirmPassword;
     handleAuth(
       "/api/auth/signup",
-      formData,
+      formObject,
       requestStart,
       signUpSuccess,
       requestFailure,
@@ -49,142 +41,149 @@ function SignUp() {
     );
   };
 
-  const toggleShowPassword = (field) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
-
-  const renderInputField = (
-    label,
-    type,
-    name,
-    visible,
-    placeholder,
-    autoComplete,
-    isError
-  ) => (
-    <div className="relative">
-      <label className="font-medium">{label}</label>
-      <div className="relative w-full mt-2">
-        <input
-          type={visible ? "text" : type}
-          required
-          className={`w-full px-3 py-2 text-gray-500 bg-transparent outline-none border shadow-sm rounded-lg ${
-            isError ? "border-red-500" : "focus:ring focus:ring-sky-700"
-          }`}
-          id={name}
-          name={name}
-          value={formData?.[name] || ""}
-          onChange={handleChange}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-        />
-        {name === "password" || name === "confirmPassword" ? (
-          <span
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 cursor-pointer opacity-70"
-            onClick={() => toggleShowPassword(name)}
-          >
-            {visible ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        ) : (
-          <></>
-        )}
-      </div>
-      {isError && <div className="text-red-500 text-sm mt-1">{error}</div>}
-    </div>
-  );
-
   const isError = (keyword) => error?.toLowerCase().includes(keyword);
 
   return (
-    <section>
-      <main className="w-full flex flex-col items-center justify-center bg-gray-50 sm:px-4">
-        <div className="w-full my-10 space-y-6 text-gray-600 sm:max-w-md">
-          <div className="text-center">
-            <h1 className="text-3xl text-center font-bold mx-auto">
-              Welcome to <span className="text-sky-700">Key</span>
-              <span className="text-slate-700">Haven</span>
-            </h1>
-            <div className="mt-5 space-y-2">
-              <h3 className="text-gray-800 text-2xl font-bold sm:text-3xl">
-                Sign up
-              </h3>
-            </div>
-          </div>
-          <div className="bg-white shadow p-4 py-6 sm:p-6 sm:rounded-lg">
-            <Form method="POST" onSubmit={handleSubmit} className="space-y-5">
-              {renderInputField(
-                "Username",
-                "text",
-                "username",
-                showPassword.username,
-                "Username",
-                "username",
-                isError("username")
-              )}
-              {renderInputField(
-                "Email",
-                "email",
-                "email",
-                showPassword.email,
-                "Email",
-                "email",
-                isError("email") // Check if there's an error for email
-              )}
-
-              {renderInputField(
-                "Password",
-                "password",
-                "password",
-                showPassword.password,
-                "Password",
-                "current-password",
-                false
-              )}
-
-              {renderInputField(
-                "Confirm Password",
-                "password",
-                "confirmPassword",
-                showPassword.confirmPassword,
-                "Confirm Password",
-                "confirmPassword",
-                false
-              )}
-              {!excludeKeywords.some((keyword) => isError(keyword)) &&
-                error?.trim().length > 0 && (
-                  <div className="text-red-500 text-sm">{error}</div>
-                )}
-              <button
-                disabled={loading}
-                className="w-full px-4 py-2 text-white font-medium bg-sky-700 hover:bg-sky-600 active:bg-sky-700 rounded-lg duration-150 flex items-center justify-center"
-              >
-                {loading ? <BlocksShuffle2 className="w-6 h-6" /> : "Sign Up"}
-              </button>
-            </Form>
-            <span className="flex items-center mt-5">
-              <span className="h-px flex-1 bg-gray-300"></span>
-              <span className="shrink-0 px-6">Or continue with</span>
-              <span className="h-px flex-1 bg-gray-300"></span>
-            </span>
-            <QAuth />
-            <div className="text-center mt-10">
-              <p className="">
-                Already have an account?{" "}
-                <a
-                  href="/sign-in"
-                  className="font-medium text-sky-700 hover:text-sky-600"
-                >
-                  Log in
-                </a>
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen flex bg-white font-sans">
+      
+      {/* Left: Decorative Image Side */}
+      <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-40"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-sky-900/90 to-slate-900/90"></div>
+        <div className="relative z-10 text-center px-12">
+          <h2 className="text-4xl font-bold text-white mb-6 font-display">Join KeyHaven</h2>
+          <p className="text-sky-100 text-lg leading-relaxed max-w-md mx-auto">
+            Create an account to start your real estate journey. Buy, sell, or rent properties with ease.
+          </p>
         </div>
-      </main>
-    </section>
+      </div>
+
+      {/* Right: Form Side */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-slate-50">
+        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 my-4">
+          
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Create Account</h1>
+            <p className="text-slate-500">Get started with your free account</p>
+          </div>
+
+          <Form method="POST" onSubmit={handleSubmit} className="space-y-5">
+            
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Username</label>
+              <div className="relative flex items-center">
+                <HiOutlineUser className="absolute left-4 text-slate-400 text-xl" />
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  placeholder="Choose a username"
+                  className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 rounded-xl outline-none focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 ${isError("username") ? 'border-rose-300 ring-4 ring-rose-50' : 'border-slate-200 focus:border-sky-500'}`}
+                  onChange={handleChange}
+                />
+              </div>
+              {isError("username") && <div className="text-rose-500 text-xs mt-1 ml-1">{error}</div>}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Email Address</label>
+              <div className="relative flex items-center">
+                <HiOutlineMail className="absolute left-4 text-slate-400 text-xl" />
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="name@example.com"
+                  className={`w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 rounded-xl outline-none focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 ${isError("email") ? 'border-rose-300 ring-4 ring-rose-50' : 'border-slate-200 focus:border-sky-500'}`}
+                  onChange={handleChange}
+                />
+              </div>
+              {isError("email") && <div className="text-rose-500 text-xs mt-1 ml-1">{error}</div>}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Password</label>
+              <div className="relative flex items-center">
+                <HiOutlineLockClosed className="absolute left-4 text-slate-400 text-xl" />
+                <input
+                  type={showPassword.pass ? "text" : "password"}
+                  name="password"
+                  required
+                  placeholder="Create a password"
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => ({...prev, pass: !prev.pass}))}
+                  className="absolute right-4 text-slate-400 hover:text-sky-600 transition-colors outline-none"
+                >
+                  {showPassword.pass ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Confirm Password</label>
+              <div className="relative flex items-center">
+                <HiOutlineLockClosed className="absolute left-4 text-slate-400 text-xl" />
+                <input
+                  type={showPassword.confirm ? "text" : "password"}
+                  name="confirmPassword"
+                  required
+                  placeholder="Confirm password"
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl outline-none focus:border-sky-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => ({...prev, confirm: !prev.confirm}))}
+                  className="absolute right-4 text-slate-400 hover:text-sky-600 transition-colors outline-none"
+                >
+                  {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            {/* Generic Error */}
+            {!["username", "email"].some((keyword) => isError(keyword)) && error?.trim().length > 0 && (
+              <div className="p-3 bg-rose-50 text-rose-600 text-sm rounded-xl text-center font-medium border border-rose-100">
+                {error}
+              </div>
+            )}
+
+            <button
+              disabled={loading}
+              className="w-full py-4 bg-gradient-to-r from-sky-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg shadow-sky-500/30 hover:shadow-sky-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+            >
+              {loading ? <BlocksShuffle2 className="w-5 h-5" /> : "Sign Up"}
+            </button>
+          </Form>
+
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-slate-400 font-medium">Or sign up with</span>
+            </div>
+          </div>
+
+          <QAuth />
+
+          <p className="mt-8 text-center text-slate-500 text-sm">
+            Already have an account?{" "}
+            <Link to="/sign-in" className="font-bold text-sky-600 hover:text-sky-700 hover:underline">
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
