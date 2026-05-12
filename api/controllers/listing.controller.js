@@ -288,7 +288,6 @@ export const getSingleListing = async (req, res, next) => {
 export const getOwnerDetail = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id);
     const owner = await User.findById(id).select("-password");
 
     if (!owner) {

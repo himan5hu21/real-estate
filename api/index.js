@@ -5,6 +5,7 @@ import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import path from "path";
 import { fileURLToPath } from 'url';
 
@@ -22,6 +23,7 @@ const connectDB = async () => {
 
 // Initialize Express app
 const app = express();
+app.use(compression()); // Enable Gzip compression
 app.use(express.json());
 app.use(cookieParser());
 

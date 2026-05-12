@@ -94,7 +94,6 @@ export const useProfileForm = (currentUser) => {
     try {
       const data1 = new FormData(e.target);
       let updatedFormData = Object.fromEntries(data1);
-      console.log(updatedFormData);
 
       if (newImage) {
         const file = e.target["image-upload"].files[0];
@@ -104,7 +103,6 @@ export const useProfileForm = (currentUser) => {
         }
       }
 
-      console.log(updatedFormData);
 
       const res = await updateUser(currentUser._id, updatedFormData);
       const data = await res.data;

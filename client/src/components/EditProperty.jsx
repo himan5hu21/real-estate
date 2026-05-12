@@ -88,7 +88,6 @@ const FormattedNumberInput = ({
 
 const EditProperty = () => {
   const { id } = useParams();
-  console.log(id);
 
   const {
     register,
@@ -155,7 +154,6 @@ const EditProperty = () => {
         setCategory(property.category);
         setType(property.area);
         setAmenities(property.features);
-        console.log(property);
         setDetails({
           guestCount: property.guestrooms,
           bedroomsCount: property.bedrooms,

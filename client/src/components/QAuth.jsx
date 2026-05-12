@@ -21,7 +21,6 @@ function QAuth() {
       const auth = getAuth(app);
 
       const result = await signInWithPopup(auth, provider);
-      console.log("Successfully signed in with Google", result);
 
       const userData = {
         name: result.user.displayName,
@@ -35,7 +34,6 @@ function QAuth() {
         },
       });
 
-      console.log("res:", res);
       dispatch(signInSuccess(res.data));
       navigate("/", { replace: true });
     } catch (error) {

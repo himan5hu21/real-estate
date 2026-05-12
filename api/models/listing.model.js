@@ -64,6 +64,13 @@ const listingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add indexes for faster querying
+listingSchema.index({ userRef: 1 });
+listingSchema.index({ type: 1 });
+listingSchema.index({ category: 1 });
+listingSchema.index({ price: 1 });
+listingSchema.index({ createdAt: -1 }); // Fast sorting for newest listings
+
 const Listing = mongoose.model("Listing", listingSchema);
 
 export default Listing;
