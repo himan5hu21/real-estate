@@ -12,8 +12,8 @@ import { lazy, Suspense } from "react";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Error from "./pages/Error.jsx";
+import Home from "./pages/Home";
 
-const Home = lazy(() => import("./pages/Home"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const About = lazy(() => import("./pages/About"));
