@@ -6,12 +6,7 @@
 // import Profile from "./pages/Profile";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "./components/Header";
-// import PrivateRoute from "./components/PrivateRoute";
-// import AddProperty from "./pages/AddProperties";
-// import Error from "./pages/Error";
-// import Properties from "./pages/Properties";
-
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { signOutSuccess } from "./store/user/userSlice";
@@ -41,35 +36,15 @@ function App() {
 
   // Check if current path matches any in the list
   const showHeader = !noHeaderRoutes.includes(location.pathname);
-  return (
-    // <BrowserRouter>
-    //   <Header />
-    //   <Routes>
-    //     <Route path="/" element={<Home />} />
-    //     <Route path="/sign-in" element={<SignIn />} />
-    //     <Route path="/sign-up" element={<SignUp />} />
-    //     <Route path="/about" element={<About />} />
-    //     <Route path="/properties" element={<Properties />} />
-    //     <Route
-    //       path="/profile"
-    //       element={
-    //         <PrivateRoute>
-    //           <Profile />
-    //         </PrivateRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/addProperty"
-    //       element={
-    //         <PrivateRoute>
-    //           <AddProperty />
-    //         </PrivateRoute>
-    //       }
-    //     />
-    //     <Route path="*" element={<Error />} />
-    //   </Routes>
-    // </BrowserRouter>
 
+  // Simple loading fallback
+  const LoadingFallback = () => (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
+    </div>
+  );
+
+  return (
     <>
       <div className="min-h-screen bg-white">
         {/* Header - Fixed position handled internally */}
@@ -77,7 +52,9 @@ function App() {
 
         {/* Main Content */}
         <main>
-          <Outlet />
+          <Suspense fallback={<LoadingFallback />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </>

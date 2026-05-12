@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { FaHeart, FaBed, FaBath, FaMapMarkerAlt, FaExpandArrowsAlt } from "react-icons/fa";
+import CldImage from "./CldImage";
 
 const PropertyCard = ({ property, showHeartIcon = true }) => {
   const { _id, imageUrls, name, bedrooms, bathrooms, address, price, type, area } = property;
@@ -61,11 +62,10 @@ const PropertyCard = ({ property, showHeartIcon = true }) => {
     >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
+        <CldImage
           src={imageUrl || "https://images.unsplash.com/photo-1613545325278-f24b0cae1224?auto=format&fit=crop&w=1770&q=80"}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
         />
         
         {/* Gradient Overlay for Text Readability */}

@@ -1,8 +1,32 @@
 import Listing from "../models/listing.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
-import fs from "fs";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const getPublicIdFromUrl = (url) => {
+  const parts = url.split("/");
+  const folderAndId = parts.slice(-2).join("/"); // "folder/filename.ext"
+  return folderAndId.split(".")[0]; // "folder/filename"
+};
+
+// Safe helper to handle both stringified JSON and individual FormData appends
+const parseField = (field) => {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  try {
+    const parsed = JSON.parse(field);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    // If it's a string that's not JSON (like "__NEW_FILE_0__"), return it as a single-item array
+    return [field];
+  }
+};
 
 export const createListing = async (req, res, next) => {
   try {
@@ -10,20 +34,25 @@ export const createListing = async (req, res, next) => {
     
     // Handle FormData stringified objects if necessary
     if (typeof listingData.address === "string") {
-      listingData.address = JSON.parse(listingData.address);
+      try {
+        listingData.address = JSON.parse(listingData.address);
+      } catch (e) {
+        console.error("Error parsing address:", e);
+      }
     }
-    if (typeof listingData.features === "string") {
-      listingData.features = JSON.parse(listingData.features);
-    }
+    
+    // Use the same safe helper for features
+    listingData.features = parseField(listingData.features);
 
     // Process images in order
     const newUrls = req.files 
-      ? req.files.map(file => `${process.env.BACKEND_URL}/uploads/${file.filename}`) 
+      ? req.files.map(file => file.path) 
       : [];
 
-    if (listingData.imageUrls) {
-      const order = typeof listingData.imageUrls === 'string' ? JSON.parse(listingData.imageUrls) : listingData.imageUrls;
-      listingData.imageUrls = order.map(item => {
+    const imageUrlOrder = parseField(listingData.imageUrls);
+    
+    if (imageUrlOrder.length > 0) {
+      listingData.imageUrls = imageUrlOrder.map(item => {
         if (typeof item === 'string' && item.startsWith('__NEW_FILE_')) {
           const index = parseInt(item.replace('__NEW_FILE_', '').replace('__', ''));
           return newUrls[index];
@@ -42,6 +71,7 @@ export const createListing = async (req, res, next) => {
       listing,
     });
   } catch (err) {
+    console.error("Error creating listing:", err);
     next(err);
   }
 };
@@ -56,16 +86,14 @@ export const deleteListing = async (req, res, next) => {
       return next(errorHandler(401, "You can only delete your own listings!"));
     }
 
-    // Delete images from disk
+    // Cleanup images from Cloudinary
     if (listing.imageUrls && listing.imageUrls.length > 0) {
-      listing.imageUrls.forEach((url) => {
-        // Extract the path from the full URL
-        const relativePath = url.replace(process.env.BACKEND_URL, "");
-        const filePath = path.join(path.resolve(), relativePath);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
+      for (const url of listing.imageUrls) {
+        if (url.includes("cloudinary")) {
+          const publicId = getPublicIdFromUrl(url);
+          await cloudinary.uploader.destroy(publicId);
         }
-      });
+      }
     }
 
     await Listing.findByIdAndDelete(req.params.id);
@@ -94,22 +122,24 @@ export const updateListing = async (req, res, next) => {
 
     // Handle FormData stringified objects
     if (typeof updateData.address === "string") {
-      updateData.address = JSON.parse(updateData.address);
+      try {
+        updateData.address = JSON.parse(updateData.address);
+      } catch (e) {
+        console.error("Error parsing address:", e);
+      }
     }
-    if (typeof updateData.features === "string") {
-      updateData.features = JSON.parse(updateData.features);
-    }
+    
+    updateData.features = parseField(updateData.features);
 
     // Handle images
     const newUrls = req.files 
-      ? req.files.map(file => `${process.env.BACKEND_URL}/uploads/${file.filename}`) 
+      ? req.files.map(file => file.path) 
       : [];
 
-    let finalImageUrls = [];
     if (updateData.imageUrls) {
-      const order = typeof updateData.imageUrls === 'string' ? JSON.parse(updateData.imageUrls) : updateData.imageUrls;
+      const imageUrlOrder = parseField(updateData.imageUrls);
       
-      finalImageUrls = order.map(item => {
+      updateData.imageUrls = imageUrlOrder.map(item => {
         if (typeof item === 'string' && item.startsWith('__NEW_FILE_')) {
           const index = parseInt(item.replace('__NEW_FILE_', '').replace('__', ''));
           return newUrls[index];
@@ -117,20 +147,17 @@ export const updateListing = async (req, res, next) => {
         return item; // It's an existing URL
       }).filter(url => url !== undefined);
     } else {
-      // Fallback
-      finalImageUrls = newUrls;
+      updateData.imageUrls = newUrls;
     }
-    updateData.imageUrls = finalImageUrls;
 
-    // Cleanup deleted images from disk
+    // Cleanup deleted images from Cloudinary
     const imagesToDelete = listing.imageUrls.filter(url => !updateData.imageUrls.includes(url));
-    imagesToDelete.forEach((url) => {
-      const relativePath = url.replace(process.env.BACKEND_URL, "");
-      const filePath = path.join(path.resolve(), relativePath);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+    for (const url of imagesToDelete) {
+      if (url.includes("cloudinary")) {
+        const publicId = getPublicIdFromUrl(url);
+        await cloudinary.uploader.destroy(publicId);
       }
-    });
+    }
 
     const updatedListing = await Listing.findByIdAndUpdate(
       req.params.id,

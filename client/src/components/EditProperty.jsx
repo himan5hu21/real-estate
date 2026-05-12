@@ -7,13 +7,6 @@ import { IoIosImages } from "react-icons/io";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import BlocksShuffle2 from "../assets/svgs/blocks-shuffle-2";
 import classNames from "classnames";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { app } from "../firebase/firebaseConfig";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -199,39 +192,6 @@ const EditProperty = () => {
     fetchProperty();
   }, [id, reset]);
 
-  const storeImage = async (file, retries = 3) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName =
-        "propertyImages/" + userId + "/" + new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          if (retries > 0) {
-            console.warn(`Retrying upload... Attempts left: ${retries}`);
-            setTimeout(() => {
-              resolve(storeImage(file, retries - 1)); // Retry upload
-            }, 1000);
-          } else {
-            console.error("Upload failed after multiple attempts:", error);
-            reject(new Error("Failed to upload image. Please try again."));
-          }
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  };
 
   const handleSelectAmenities = (facility) => {
     if (amenities.includes(facility)) {
@@ -306,84 +266,62 @@ const EditProperty = () => {
     setLoading(true);
     setError(false);
 
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    try {
+      const formDataToSend = new FormData();
+      
+      // Basic info
+      formDataToSend.append("userRef", userId);
+      formDataToSend.append("name", data.name);
+      formDataToSend.append("description", data.description);
+      formDataToSend.append("price", parseInt(data.price.toString().replace(/,/g, ""), 10));
+      formDataToSend.append("type", data.propertyType);
+      formDataToSend.append("bedrooms", details.bedroomsCount);
+      formDataToSend.append("bathrooms", details.bathroomsCount);
+      formDataToSend.append("guestrooms", details.guestCount);
+      formDataToSend.append("beds", details.bedCount);
+      formDataToSend.append("area", type);
+      formDataToSend.append("category", category);
 
-    const updatedFormData = {
-      userRef: userId,
-      name: data.name,
-      description: data.description,
-      address: {
+      // Objects/Arrays as JSON strings
+      formDataToSend.append("address", JSON.stringify({
         streetAddress: data.streetAddress,
         city: data.city,
         state: data.state,
         country: data.country,
         postalCode: parseInt(data.postalCode, 10) || 0,
-      },
-      price: parseInt(data.price, 10) || 0, // Ensure price is stored as a number
-      type: data.propertyType,
-      bedrooms: details.bedroomsCount,
-      bathrooms: details.bathroomsCount,
-      guestrooms: details.guestCount,
-      beds: details.bedCount,
-      features: amenities,
-      area: type,
-      category: category,
-      imageUrls: [],
-    };
+      }));
+      formDataToSend.append("features", JSON.stringify(amenities));
 
-    try {
-      // Upload images
+      // Append image order (mix of existing URLs and new file markers)
+      const newFiles = photos.filter(p => p.file);
+      photos.forEach((photo) => {
+        if (photo.file) {
+          const index = newFiles.indexOf(photo);
+          formDataToSend.append("imageUrls", `__NEW_FILE_${index}__`);
+        } else {
+          formDataToSend.append("imageUrls", photo.url);
+        }
+      });
 
-      // console.log(updatedFormData);
-
-      // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-      // Separate existing and new photos
-      const existingImageUrls = photos
-        .filter((photo) => photo.file === null && photo.url)
-        .map((photo) => photo.url);
-
-      const newPhotos = photos.filter((photo) => photo.file !== null);
-
-      const uploadedImageUrls = await Promise.all(
-        newPhotos.map(async (photo, index) => {
-          await delay(index * 1000); // slight delay
-          return await storeImage(photo.file);
-        })
-      );
-
-      const allImageUrls = [...existingImageUrls, ...uploadedImageUrls];
-
-      // const imageUrls = await Promise.all(
-      //   photos.map(async (photo, index) => {
-      //     await delay(index * 1000);
-      //     return storeImage(photo.file);
-      //   })
-      // );
-      updatedFormData.imageUrls = allImageUrls;
-
-      // console.log(updatedFormData);
+      // Append New Files
+      newFiles.forEach((photo) => {
+        formDataToSend.append("images", photo.file);
+      });
 
       const res = await axios.put(
         `/api/listing/update/${id}`,
-        updatedFormData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        formDataToSend
       );
 
-      const data = await res.data;
-      if (!data.success) {
-        setError(data.message);
-        console.log(data.message);
+      const responseData = res.data;
+      if (!responseData.success) {
+        setError(responseData.message);
         return;
       }
       navigate("/", { replace: true });
       setError(false);
     } catch (err) {
-      setError(err.response?.data?.message);
+      setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

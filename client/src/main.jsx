@@ -7,20 +7,22 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./store/store.js";
 
+import { lazy, Suspense } from "react";
 // Components & Pages
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Error from "./pages/Error.jsx";
-import Home from "./pages/Home";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
-import About from "./pages/About";
-import Profile from "./pages/Profile";
-import Properties from "./pages/Properties.jsx";
-import MyProperty from "./pages/MyProperty.jsx";
-import PropertyDetails from "./pages/PropertyDetails.jsx";
-import FavoriteProperties from "./pages/FavoriteProperties.jsx";
-import PropertyForm from "./pages/AddProperties.jsx";
+
+const Home = lazy(() => import("./pages/Home"));
+const SignIn = lazy(() => import("./pages/SignIn"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const About = lazy(() => import("./pages/About"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Properties = lazy(() => import("./pages/Properties.jsx"));
+const MyProperty = lazy(() => import("./pages/MyProperty.jsx"));
+const PropertyDetails = lazy(() => import("./pages/PropertyDetails.jsx"));
+const FavoriteProperties = lazy(() => import("./pages/FavoriteProperties.jsx"));
+const PropertyForm = lazy(() => import("./pages/AddProperties.jsx"));
 
 const router = createBrowserRouter(
   [
@@ -114,21 +116,38 @@ const router = createBrowserRouter(
   }
 );
 
+// Professional Loader Component
+const CompilingLoader = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 font-sans">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-sky-100 border-t-sky-500 rounded-full animate-spin"></div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 bg-sky-500/10 rounded-full animate-pulse"></div>
+      </div>
+    </div>
+    <p className="mt-4 text-slate-600 font-bold tracking-widest uppercase text-xs animate-pulse">
+      Compiling Assets...
+    </p>
+  </div>
+);
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider
-          router={router}
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-            v7_fetcherPersist: true,
-            v7_normalizeFormMethod: true,
-            v7_partialHydration: true,
-            v7_skipActionErrorRevalidation: true,
-          }}
-        />
+        <Suspense fallback={<CompilingLoader />}>
+          <RouterProvider
+            router={router}
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+              v7_fetcherPersist: true,
+              v7_normalizeFormMethod: true,
+              v7_partialHydration: true,
+              v7_skipActionErrorRevalidation: true,
+            }}
+          />
+        </Suspense>
       </PersistGate>
     </Provider>
   </StrictMode>

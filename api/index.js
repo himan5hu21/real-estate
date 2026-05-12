@@ -1,14 +1,12 @@
+import 'dotenv/config';
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import listingRouter from "./routes/listing.route.js";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from 'url';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,7 +25,6 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 // Register routes
 app.use("/api/user", userRouter);

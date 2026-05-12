@@ -7,6 +7,7 @@ import person2 from "../assets/images/person-2.jpg";
 import sideimage from "../assets/images/sideimage5.png";
 import sideimage2 from "../assets/images/sideimage3.jpg";
 import sideimage1 from "../assets/images/sideimage1.jpg";
+import CldImage from "./CldImage";
 
 const Hero = () => {
   return (
@@ -108,9 +109,9 @@ const Hero = () => {
             {/* Trust Indicators */}
             <div className="flex items-center gap-4 pt-4">
               <div className="flex -space-x-3">
-                <img src={circle} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
-                <img src={person1} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
-                <img src={person2} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
+                <CldImage src={circle} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
+                <CldImage src={person1} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
+                <CldImage src={person2} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 ring-4 ring-white shadow-md flex items-center justify-center">
                   <span className="text-white text-xs font-bold">2K+</span>
                 </div>
@@ -148,7 +149,7 @@ const Hero = () => {
 
               {/* Main Image */}
               <div className="rounded-3xl overflow-hidden shadow-2xl shadow-slate-300/50 border border-white/50">
-                <img
+                <CldImage
                   src={sideimage}
                   alt="Beautiful property"
                   className="w-full h-[280px] lg:h-[350px] object-cover hover:scale-105 transition-transform duration-700"
@@ -158,14 +159,14 @@ const Hero = () => {
               {/* Secondary Images */}
               <div className="flex gap-4 mt-4">
                 <div className="flex-1 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 border border-white/50 group">
-                  <img
+                  <CldImage
                     src={sideimage1}
                     alt="Modern kitchen"
                     className="w-full h-[140px] lg:h-[180px] object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
                 <div className="flex-1 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 border border-white/50 group relative">
-                  <img
+                  <CldImage
                     src={sideimage2}
                     alt="Cozy living room"
                     className="w-full h-[140px] lg:h-[180px] object-cover group-hover:scale-110 transition-transform duration-700"

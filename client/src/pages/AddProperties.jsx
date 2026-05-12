@@ -183,16 +183,16 @@ const PropertyForm = () => {
       }));
       formDataToSend.append("features", JSON.stringify(selectedAmenities));
 
-      // Build a list of identifiers in the correct order to preserve reordering
+      // Append image order (mix of existing URLs and new file markers)
       const newFiles = photos.filter(p => p.file);
-      const imageOrder = photos.map((photo) => {
+      photos.forEach((photo) => {
         if (photo.file) {
           const index = newFiles.indexOf(photo);
-          return `__NEW_FILE_${index}__`;
+          formDataToSend.append("imageUrls", `__NEW_FILE_${index}__`);
+        } else {
+          formDataToSend.append("imageUrls", photo.url);
         }
-        return photo.url;
       });
-      formDataToSend.append("imageUrls", JSON.stringify(imageOrder));
 
       // Append New Files
       newFiles.forEach((photo) => {
@@ -200,16 +200,10 @@ const PropertyForm = () => {
       });
 
       let res;
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
       if (isEditMode) {
-        res = await axios.put(`/api/listing/update/${id}`, formDataToSend, config);
+        res = await axios.put(`/api/listing/update/${id}`, formDataToSend);
       } else {
-        res = await axios.post("/api/listing/create", formDataToSend, config);
+        res = await axios.post("/api/listing/create", formDataToSend);
       }
 
       const responseData = res.data;

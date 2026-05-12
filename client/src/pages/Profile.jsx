@@ -8,6 +8,7 @@ import useProfileForm from "../hooks/useProfileForm";
 import useChangePassword from "../hooks/useChangePassword";
 import { Form } from "react-router-dom";
 import PropTypes from "prop-types";
+import CldImage from "../components/CldImage";
 import Footer from "../components/Footer";
 
 // Reusable Input Component (Matches Properties.jsx Design)
@@ -155,7 +156,7 @@ const Profile = () => {
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 text-center">
               <div className="relative inline-block group">
-                <img
+                <CldImage
                   src={newImage || currentUser.avatar || "https://via.placeholder.com/150"}
                   alt="Profile"
                   className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg mx-auto transition-transform duration-300 group-hover:scale-105"

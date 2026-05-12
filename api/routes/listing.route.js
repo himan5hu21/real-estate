@@ -13,19 +13,20 @@ import {
 } from "../controllers/listing.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'real-estate',
+    allowed_formats: ['jpg', 'png', 'jpeg'],
   },
 });
 

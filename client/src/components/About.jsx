@@ -1,6 +1,7 @@
 import { BsCheck2Circle } from "react-icons/bs";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import aboutImg from "../assets/images/aboutImage1.jpg";
+import CldImage from "./CldImage";
 
 function About() {
   const benefits = [
@@ -26,7 +27,7 @@ function About() {
             <div className="relative">
               {/* Main Image */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50">
-                <img
+                <CldImage
                   src={aboutImg}
                   alt="Beautiful modern home"
                   className="w-full h-[400px] md:h-[500px] object-cover"

@@ -17,6 +17,7 @@ import {
   FaExpand
 } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
+import CldImage from "../components/CldImage";
 import OwnerContactCard from "../components/OwnerContactCard";
 import Footer from "../components/Footer";
 
@@ -193,10 +194,10 @@ const PropertyDetails = () => {
           <div className="relative w-full h-[400px] md:h-[600px] bg-slate-100 rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 group">
             
             {/* Image */}
-            <img 
+            <CldImage 
               src={imageUrls[selectedImageIndex]} 
               alt="Property View" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
               onClick={() => openImageModal(selectedImageIndex)}
             />
 
@@ -242,7 +243,7 @@ const PropertyDetails = () => {
 
           {/* Thumbnails */}
           {imageUrls.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide px-1">
+            <div className="flex gap-3 overflow-x-auto py-2 scrollbar-hide px-2">
               {imageUrls.map((url, index) => (
                 <button
                   key={index}
@@ -251,7 +252,11 @@ const PropertyDetails = () => {
                     selectedImageIndex === index ? "ring-2 ring-sky-500 ring-offset-2 opacity-100 scale-100" : "opacity-50 hover:opacity-100 grayscale hover:grayscale-0"
                   }`}
                 >
-                  <img src={url} alt={`Thumb ${index}`} className="w-full h-full object-cover" />
+                    <CldImage 
+                      src={url} 
+                      alt={`Thumb ${index}`} 
+                      className="w-full h-full object-cover" 
+                    />
                 </button>
               ))}
             </div>
@@ -387,7 +392,7 @@ const PropertyDetails = () => {
           </button>
           
           <div className="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center">
-             <img 
+             <CldImage 
                src={imageUrls[selectedImageIndex]} 
                alt="Gallery Fullscreen" 
                className="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl"
