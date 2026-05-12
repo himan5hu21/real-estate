@@ -118,16 +118,8 @@ const router = createBrowserRouter(
 
 // Professional Loader Component
 const CompilingLoader = () => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 font-sans">
-    <div className="relative">
-      <div className="w-16 h-16 border-4 border-sky-100 border-t-sky-500 rounded-full animate-spin"></div>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 bg-sky-500/10 rounded-full animate-pulse"></div>
-      </div>
-    </div>
-    <p className="mt-4 text-slate-600 font-bold tracking-widest uppercase text-xs animate-pulse">
-      Compiling Assets...
-    </p>
+  <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sky-500"></div>
   </div>
 );
 
