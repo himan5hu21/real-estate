@@ -11,10 +11,11 @@ const CldImage = ({ src, alt, className, width, height, ...props }) => {
       <LazyLoadImage
         src={src}
         alt={alt}
-        className={className}
+        className={`${className} block`}
         width={width}
         height={height}
         effect="blur"
+        wrapperClassName={`${className} !block`}
         {...props}
       />
     );
@@ -41,12 +42,12 @@ const CldImage = ({ src, alt, className, width, height, ...props }) => {
       src={mainUrl}
       placeholderSrc={placeholderUrl}
       alt={alt}
-      className={className}
+      className={`${className} block`}
       width={width}
       height={height}
       effect="blur"
-      threshold={100} // Start loading slightly before viewport
-      wrapperClassName={className} // Ensure wrapper matches for layout stability
+      threshold={100}
+      wrapperClassName={`${className} !block`} // Force block display for the wrapper
       {...props}
     />
   );

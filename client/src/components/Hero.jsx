@@ -109,9 +109,9 @@ const Hero = () => {
             {/* Trust Indicators */}
             <div className="flex items-center gap-4 pt-4">
               <div className="flex -space-x-3">
-                <CldImage src={circle} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
-                <CldImage src={person1} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
-                <CldImage src={person2} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md" />
+                <img src={circle} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md object-cover" loading="lazy" />
+                <img src={person1} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md object-cover" loading="lazy" />
+                <img src={person2} alt="Client" className="w-12 h-12 rounded-full ring-4 ring-white shadow-md object-cover" loading="lazy" />
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 ring-4 ring-white shadow-md flex items-center justify-center">
                   <span className="text-white text-xs font-bold">2K+</span>
                 </div>
@@ -149,27 +149,30 @@ const Hero = () => {
 
               {/* Main Image */}
               <div className="rounded-3xl overflow-hidden shadow-2xl shadow-slate-300/50 border border-white/50">
-                <CldImage
+                <img
                   src={sideimage}
                   alt="Beautiful property"
-                  className="w-full h-[280px] lg:h-[350px] object-cover hover:scale-105 transition-transform duration-700"
+                  className="w-full h-[280px] lg:h-[350px] object-cover"
+                  loading="lazy"
                 />
               </div>
 
               {/* Secondary Images */}
               <div className="flex gap-4 mt-4">
                 <div className="flex-1 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 border border-white/50 group">
-                  <CldImage
+                  <img
                     src={sideimage1}
                     alt="Modern kitchen"
-                    className="w-full h-[140px] lg:h-[180px] object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-[140px] lg:h-[180px] object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="flex-1 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/50 border border-white/50 group relative">
-                  <CldImage
+                  <img
                     src={sideimage2}
                     alt="Cozy living room"
-                    className="w-full h-[140px] lg:h-[180px] object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-[140px] lg:h-[180px] object-cover"
+                    loading="lazy"
                   />
                   {/* Overlay Badge */}
                   <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm rounded-xl p-3 hidden sm:block">
