@@ -1,55 +1,42 @@
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import { AdvancedImage, placeholder, responsive } from '@cloudinary/react';
+import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import cld, { getPublicIdFromUrl } from '../utils/cloudinary';
 
-const CldImage = ({ src, alt, className, width, height, ...props }) => {
+const CldImage = ({ src, alt, className, ...props }) => {
   const publicId = getPublicIdFromUrl(src);
 
   if (!publicId) {
     // Fallback for non-cloudinary images
     return (
-      <LazyLoadImage
-        src={src}
-        alt={alt}
-        className={`${className} block`}
-        width={width}
-        height={height}
-        effect="blur"
-        wrapperClassName={`${className} !block`}
-        {...props}
-      />
+      <LazyLoadComponent>
+        <img 
+          src={src} 
+          alt={alt} 
+          className={`${className} block`} 
+          {...props} 
+        />
+      </LazyLoadComponent>
     );
   }
 
-  // 1. Generate Highly Optimized Main Image URL
-  const mainImage = cld.image(publicId)
+  // 1. Generate Highly Optimized Cloudinary Image object
+  const myImage = cld.image(publicId)
     .format('auto')
     .quality('auto');
-  
-  const mainUrl = mainImage.toURL();
-
-  // 2. Generate Tiny Blurred Placeholder URL (Professional 'Blur-up' Technique)
-  const placeholderImage = cld.image(publicId)
-    .format('auto')
-    .quality('auto')
-    .resize('w_50,c_scale') // Very small version
-    .effect('e_blur:1000'); // Heavily blurred
-  
-  const placeholderUrl = placeholderImage.toURL();
 
   return (
-    <LazyLoadImage
-      src={mainUrl}
-      placeholderSrc={placeholderUrl}
-      alt={alt}
-      className={`${className} block`}
-      width={width}
-      height={height}
-      effect="blur"
-      threshold={100}
-      wrapperClassName={`${className} !block`} // Force block display for the wrapper
-      {...props}
-    />
+    <LazyLoadComponent>
+      <AdvancedImage
+        cldImg={myImage}
+        className={`${className} block`}
+        plugins={[
+          responsive({ steps: [200, 400, 600, 800, 1000, 1200] }), // Professional Responsive handling
+          placeholder({ mode: 'blur' }) // Cloudinary's native blur-up placeholder
+        ]}
+        alt={alt}
+        {...props}
+      />
+    </LazyLoadComponent>
   );
 };
 
